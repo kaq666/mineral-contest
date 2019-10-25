@@ -27,18 +27,53 @@ public class SpawnListener implements Listener {
     public SpawnListener(App main) {
         this.main = main;
     }
+    private PlayerTeam playerTeam;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
-        final PlayerTeam playerTeam = new PlayerTeam(player);
+        this.playerTeam = new PlayerTeam(player);
         player.setGameMode(GameMode.ADVENTURE);
-        player.sendRawMessage("Bienvenu fréro");
-
-        // this need to be chosen by the player
-        playerTeam.setTeam(main.getTeamByName("Team Rouge"));
+    }
 
 
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent clickEvent) {
+        if (clickEvent.getClickedBlock() != null && clickEvent.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Player player = clickEvent.getPlayer();
+            Block button = clickEvent.getClickedBlock();
+
+            Location signLocation = button.getLocation();
+            signLocation.add(0,1,0);
+
+            BlockState blockState = signLocation.getBlock().getState();
+            if (blockState instanceof Sign) {
+                Sign sign = (Sign) blockState;
+                if (sign.getLine(0).equals("[Choix des équipes]")) {
+                    // TODO : Passé les if en switch
+                    if (sign.getLine(1).equals("Team Rouge")) {
+                        this.playerTeam.setTeam(main.getTeamByName("Team Rouge"));
+                    }
+                    if (sign.getLine(1).equals("Team Jaune")) {
+                        this.playerTeam.setTeam(main.getTeamByName("Team Jaune"));
+                    }
+                    if (sign.getLine(1).equals("Team Bleue")) {
+                        this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
+                    }
+                    this.displayScoreBoard(player);
+                }
+            }
+        }
+    }
+
+
+    private void displayScoreBoard(final Player player) {
+        // TODO : singleton quelques chose comme ça pour ne pas instancier 1000 Runnable
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, new Runnable() {
             public void run() {
                 ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -57,41 +92,4 @@ public class SpawnListener implements Listener {
             }
         },0, 20 * 10);
     }
-
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-
-    }
-
-    public void onInteract(PlayerInteractEvent clickEvent) {
-        if (clickEvent.getClickedBlock() != null && clickEvent.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player player = clickEvent.getPlayer();
-            Block button = clickEvent.getClickedBlock();
-
-            Location signLocation = button.getLocation();
-            signLocation.add(1,0,0);
-
-            BlockState blockState = signLocation.getBlock().getState();
-            if (blockState instanceof Sign) {
-                Sign sign = (Sign) blockState;
-                if (sign.getLine(0).equals("[Choix des équipe]")) {
-                    switch (sign.getLine(1)) {
-                        case "Team Rouge":
-                            player.sendRawMessage("Rouge");
-                            break;
-                        case "Team Jaune":
-                            player.sendRawMessage("Jaune");
-                            break;
-                        case "Team Bleue":
-                            player.sendRawMessage("Bleue");
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
-    }
-
 }
