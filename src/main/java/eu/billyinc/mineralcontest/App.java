@@ -1,4 +1,4 @@
-package eu.billyinc.mineral_contest;
+package eu.billyinc.mineralcontest;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
