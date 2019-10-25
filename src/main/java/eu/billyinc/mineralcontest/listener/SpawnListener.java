@@ -4,12 +4,21 @@ import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scoreboard.*;
+import org.bukkit.util.Vector;
+
+import java.awt.*;
 
 public class SpawnListener implements Listener {
 
@@ -54,4 +63,35 @@ public class SpawnListener implements Listener {
     public void onQuit(PlayerQuitEvent e) {
 
     }
+
+    public void onInteract(PlayerInteractEvent clickEvent) {
+        if (clickEvent.getClickedBlock() != null && clickEvent.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Player player = clickEvent.getPlayer();
+            Block button = clickEvent.getClickedBlock();
+
+            Location signLocation = button.getLocation();
+            signLocation.add(1,0,0);
+
+            BlockState blockState = signLocation.getBlock().getState();
+            if (blockState instanceof Sign) {
+                Sign sign = (Sign) blockState;
+                if (sign.getLine(0).equals("[Choix des équipe]")) {
+                    switch (sign.getLine(1)) {
+                        case "Team Rouge":
+                            player.sendRawMessage("Rouge");
+                            break;
+                        case "Team Jaune":
+                            player.sendRawMessage("Jaune");
+                            break;
+                        case "Team Bleue":
+                            player.sendRawMessage("Bleue");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
 }
