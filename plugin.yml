@@ -2,3 +2,8 @@ name: mineral-contest
 version: 0.1
 author: TPhilippot-QBilly
 main: eu.billyinc.mineralcontest.App
+commands:
+  mc:
+    description: Here a chest!
+    permission: player.use
+api-version: 1.13

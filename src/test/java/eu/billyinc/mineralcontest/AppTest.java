@@ -1,4 +1,4 @@
-package eu.billyinc.mineral_contest;
+package eu.billyinc.mineralcontest;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
