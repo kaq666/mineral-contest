@@ -1,6 +1,7 @@
 package eu.billyinc.mineralcontest.listener;
 
 import eu.billyinc.mineralcontest.App;
+import eu.billyinc.mineralcontest.command.TeamCommandExecutor;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -23,17 +24,18 @@ import java.awt.*;
 public class SpawnListener implements Listener {
 
     private App main;
+    private PlayerTeam playerTeam;
 
     public SpawnListener(App main) {
         this.main = main;
     }
-    private PlayerTeam playerTeam;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
         this.playerTeam = new PlayerTeam(player);
         player.setGameMode(GameMode.ADVENTURE);
+        main.getCommand("setTeamSpawnLocatioon").setExecutor(new TeamCommandExecutor(main));
     }
 
 
@@ -66,6 +68,7 @@ public class SpawnListener implements Listener {
                         this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
                     }
                     this.displayScoreBoard(player);
+                    player.teleport(playerTeam.getTeam().getSpawn());
                 }
             }
         }

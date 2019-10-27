@@ -1,6 +1,7 @@
 package eu.billyinc.mineralcontest.model;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -12,11 +13,13 @@ public class Team {
     private List<Player> players;
     private int score;
     private ChatColor color;
+    private Location spawn;
 
-    public Team(String name, ChatColor chatColor) {
+    public Team(String name, ChatColor chatColor, Location location) {
         this.name = name;
         this.players = new ArrayList<Player>();
         this.color = chatColor;
+        this.spawn = location;
     }
 
     public void addPlayer(Player player) {
@@ -49,5 +52,13 @@ public class Team {
 
     public ChatColor getColor() {
         return color;
+    }
+
+    public Location getSpawn() {
+        return spawn;
+    }
+
+    public void setSpawn(Location spawn) {
+        this.spawn = spawn;
     }
 }
