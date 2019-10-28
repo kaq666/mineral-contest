@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -115,6 +116,8 @@ public class MineralContestChest {
 		for(ItemStack item : chest.getInventory().getContents()) {
 			if (item instanceof ItemStack) {
 				player.getInventory().addItem(item);
+				player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 0.0f);
+				chest.getInventory().remove(item);
 			}
 		}
 	}

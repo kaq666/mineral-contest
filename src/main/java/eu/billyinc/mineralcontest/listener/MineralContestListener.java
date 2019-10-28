@@ -11,8 +11,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
@@ -27,9 +27,9 @@ public class MineralContestListener implements Listener {
 	}
 
 	@EventHandler
-	public void onOpeningMineralContestChest(InventoryOpenEvent e) {
-		if (e.getInventory().getHolder() instanceof Chest && e.getPlayer() instanceof Player) {
-			Chest chest = (Chest) e.getInventory().getHolder();
+	public void onOpeningMineralContestChest(PlayerInteractEvent e) {
+		if (e.getClickedBlock().getState() instanceof Chest && e.getPlayer() instanceof Player) {
+			Chest chest = (Chest) e.getClickedBlock().getState();
 			MineralContestChest mcChest = MineralContestManager.getMineralContestChestManager().getMineralContestChestByChest(chest);
 			
 			if(mcChest instanceof MineralContestChest && !mcChest.isHasBeenTransfered()) {
@@ -46,25 +46,17 @@ public class MineralContestListener implements Listener {
 					
 					final int x = i;
 					mineralContestPlayer.addTask(
-					Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
-						inventory.setItem(x, new ItemStack(Material.GREEN_WOOL, 1));
-						player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 2.0f, (float) mcChest.getSounds()[x]);
-					}, 20 * (i + 1)).getTaskId());
+						Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
+							inventory.setItem(x, new ItemStack(Material.GREEN_WOOL, 1));
+							player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 2.0f, (float) mcChest.getSounds()[x]);
+						}, 20 * (i + 1))
+					.getTaskId());
 				}
 				
 				mineralContestPlayer.addTask(
-				Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
-					e.setCancelled(false);
-					
+				Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {					
 					player.closeInventory();
 					mcChest.transferTo(player);
-					player.openInventory(chest.getInventory());
-					
-					mineralContestPlayer.addTask(
-					Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
-						player.closeInventory();
-						chest.getInventory().clear();
-					}, 20).getTaskId());
 				}, 20*5).getTaskId());
 			}
 		}
