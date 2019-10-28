@@ -2,6 +2,7 @@ package eu.billyinc.mineralcontest.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
 import eu.billyinc.mineralcontest.manager.MineralContestManager;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
 import eu.billyinc.mineralcontest.model.MineralContestPlayer;
@@ -49,6 +51,7 @@ public class MineralContestListener implements Listener {
 						Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
 							inventory.setItem(x, new ItemStack(Material.GREEN_WOOL, 1));
 							player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 2.0f, (float) mcChest.getSounds()[x]);
+							chest.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, chest.getLocation(), 100);
 						}, 20 * (i + 1))
 					.getTaskId());
 				}
