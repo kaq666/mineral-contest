@@ -1,7 +1,8 @@
 name: mineral-contest
 version: 0.1
+api-version: 1.14
 author: TPhilippot-QBilly
 main: eu.billyinc.mineralcontest.App
 commands:
-  setTeamSpawnLocatioon:
+  setTeamSpawnLocation:
     description: Définir l'emplacement du spawn d'un équipe

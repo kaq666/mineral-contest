@@ -3,10 +3,13 @@ package eu.billyinc.mineralcontest.listener;
 import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.command.TeamCommandExecutor;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
+import eu.billyinc.mineralcontest.model.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -15,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scoreboard.*;
 import org.bukkit.util.Vector;
@@ -35,7 +39,7 @@ public class SpawnListener implements Listener {
         final Player player = e.getPlayer();
         this.playerTeam = new PlayerTeam(player);
         player.setGameMode(GameMode.ADVENTURE);
-        main.getCommand("setTeamSpawnLocatioon").setExecutor(new TeamCommandExecutor(main));
+        main.getCommand("setTeamSpawnLocation").setExecutor(new TeamCommandExecutor(main));
     }
 
 
@@ -46,30 +50,57 @@ public class SpawnListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent clickEvent) {
+        Player player = clickEvent.getPlayer();
         if (clickEvent.getClickedBlock() != null && clickEvent.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player player = clickEvent.getPlayer();
             Block button = clickEvent.getClickedBlock();
-
             Location signLocation = button.getLocation();
             signLocation.add(0,1,0);
 
             BlockState blockState = signLocation.getBlock().getState();
+            // player as chosen a team
             if (blockState instanceof Sign) {
-                Sign sign = (Sign) blockState;
-                if (sign.getLine(0).equals("[Choix des équipes]")) {
-                    // TODO : Passé les if en switch
-                    if (sign.getLine(1).equals("Team Rouge")) {
-                        this.playerTeam.setTeam(main.getTeamByName("Team Rouge"));
-                    }
-                    if (sign.getLine(1).equals("Team Jaune")) {
-                        this.playerTeam.setTeam(main.getTeamByName("Team Jaune"));
-                    }
-                    if (sign.getLine(1).equals("Team Bleue")) {
-                        this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
-                    }
-                    this.displayScoreBoard(player);
-                    player.teleport(playerTeam.getTeam().getSpawn());
-                }
+                this.setClickedTeam(blockState, player);
+            }
+        }
+
+        // player try to reach a safe base
+        if(clickEvent.getAction().equals(Action.PHYSICAL)) {
+            if (clickEvent.getClickedBlock().getType() == Material.STONE_PRESSURE_PLATE) {
+                this.authorize(player);
+            }
+
+        }
+    }
+
+    private void setClickedTeam(BlockState blockState, Player player) {
+        Sign sign = (Sign) blockState;
+        if (sign.getLine(0).equals("[Choix des équipes]")) {
+            // TODO : Passé les if en switch
+            if (sign.getLine(1).equals("Team Rouge")) {
+                this.playerTeam.setTeam(main.getTeamByName("Team Rouge"));
+            }
+            if (sign.getLine(1).equals("Team Jaune")) {
+                this.playerTeam.setTeam(main.getTeamByName("Team Jaune"));
+            }
+            if (sign.getLine(1).equals("Team Bleue")) {
+                this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
+            }
+            this.displayScoreBoard(player);
+            player.teleport(playerTeam.getTeam().getSpawn());
+        }
+    }
+
+    private void authorize(Player player) {
+        Team team = playerTeam.getTeam();
+        if (team != null) {
+            if (
+                    (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.RED_TERRACOTTA && team != main.getTeamByName("Team Rouge"))
+                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.BLUE_TERRACOTTA && team != main.getTeamByName("Team Bleue"))
+                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.YELLOW_TERRACOTTA && team != main.getTeamByName("Team Yellow"))
+            ) {
+                    player.sendMessage("zone non autorisée");
+                    // TODO : voir pour le téleporte
+                    player.setHealth(0);
             }
         }
     }
