@@ -13,6 +13,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.billyinc.mineralcontest.command.MineralContestCommand;
+import eu.billyinc.mineralcontest.listener.MineralContestListener;
+import eu.billyinc.mineralcontest.manager.MineralContestManager;
+
 /**
  * Hello world!
  *
@@ -20,6 +24,7 @@ import java.util.List;
 public class App extends JavaPlugin {
 
     private List<Team> teams = new ArrayList<Team>();
+    private GameState gameState = GameState.WAITING;
 
 	@Override
     public void onEnable() {
@@ -28,6 +33,9 @@ public class App extends JavaPlugin {
         SpawnListener spawnListener = new SpawnListener(this);
         this.getServer().getPluginManager().registerEvents(spawnListener, this);
         this.registerTeams();
+        MineralContestManager.setApp(this);
+        getCommand("mc").setExecutor(new MineralContestCommand(this));
+        getServer().getPluginManager().registerEvents(new MineralContestListener(), this);
     }
 
     @Override
@@ -49,5 +57,22 @@ public class App extends JavaPlugin {
             }
         }
 	    return null;
+    }
+
+    public boolean allTeamAsAPlayer() {
+	    for (Team team : this.teams) {
+	        if (team.getPlayers().isEmpty()) {
+	            return false;
+            }
+        }
+	    return true;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
     }
 }

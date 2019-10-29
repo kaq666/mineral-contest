@@ -39,6 +39,7 @@ public class SpawnListener implements Listener {
         final Player player = e.getPlayer();
         this.playerTeam = new PlayerTeam(player);
         player.setGameMode(GameMode.ADVENTURE);
+        // change to team
         main.getCommand("setTeamSpawnLocation").setExecutor(new TeamCommandExecutor(main));
     }
 
@@ -75,15 +76,16 @@ public class SpawnListener implements Listener {
     private void setClickedTeam(BlockState blockState, Player player) {
         Sign sign = (Sign) blockState;
         if (sign.getLine(0).equals("[Choix des équipes]")) {
-            // TODO : Passé les if en switch
-            if (sign.getLine(1).equals("Team Rouge")) {
-                this.playerTeam.setTeam(main.getTeamByName("Team Rouge"));
-            }
-            if (sign.getLine(1).equals("Team Jaune")) {
-                this.playerTeam.setTeam(main.getTeamByName("Team Jaune"));
-            }
-            if (sign.getLine(1).equals("Team Bleue")) {
-                this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
+            switch (sign.getLine(1)) {
+                case "Team Rouge":
+                    this.playerTeam.setTeam(main.getTeamByName("Team Rouge"));
+                    break;
+                case "Team Bleue":
+                    this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
+                    break;
+                case "Team Jaune":
+                    this.playerTeam.setTeam(main.getTeamByName("Team Jaune"));
+                    break;
             }
             this.displayScoreBoard(player);
             player.teleport(playerTeam.getTeam().getSpawn());
@@ -108,22 +110,20 @@ public class SpawnListener implements Listener {
 
     private void displayScoreBoard(final Player player) {
         // TODO : singleton quelques chose comme ça pour ne pas instancier 1000 Runnable
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, new Runnable() {
-            public void run() {
-                ScoreboardManager manager = Bukkit.getScoreboardManager();
-                final Scoreboard board = manager.getNewScoreboard();
-                final Objective objective = board.registerNewObjective("test", "dummy", "Display Name");
-                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                objective.setDisplayName(playerTeam.getTeam().getColoredName());
-                for (Player teamPlayer : playerTeam.getTeam().getPlayers()) {
-                    Score teamPlayerScore = objective.getScore(teamPlayer.getName());
-                    teamPlayerScore.setScore(0);
-                }
-
-                Score score3 = objective.getScore("§fTotal");
-                score3.setScore(1580);
-                player.setScoreboard(board);
+        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
+            ScoreboardManager manager = Bukkit.getScoreboardManager();
+            final Scoreboard board = manager.getNewScoreboard();
+            final Objective objective = board.registerNewObjective("test", "dummy", "Display Name");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            objective.setDisplayName(playerTeam.getTeam().getColoredName());
+            for (Player teamPlayer : playerTeam.getTeam().getPlayers()) {
+                Score teamPlayerScore = objective.getScore(teamPlayer.getName());
+                teamPlayerScore.setScore(0);
             }
+
+            Score score3 = objective.getScore("§fTotal");
+            score3.setScore(1580);
+            player.setScoreboard(board);
         },0, 20 * 10);
     }
 }
