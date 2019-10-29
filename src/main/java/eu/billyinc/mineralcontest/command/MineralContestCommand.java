@@ -52,9 +52,9 @@ public class MineralContestCommand implements CommandExecutor {
 		}
 
 		if (args[0].toLowerCase().equals("start") && sender instanceof Player) {
-			sender.sendMessage("Start command");
 			if (main.allTeamAsAPlayer()) {
 				if (main.getGameState() == GameState.WAITING) {
+					main.setGameState(GameState.STARTING);
 					GameStarter starter = new GameStarter(this.main);
 					starter.runTaskTimer(main, 0, 20);
 				} else {

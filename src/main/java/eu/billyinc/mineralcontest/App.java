@@ -1,17 +1,14 @@
 package eu.billyinc.mineralcontest;
 
-import eu.billyinc.mineralcontest.command.TeamCommandExecutor;
 import eu.billyinc.mineralcontest.listener.SpawnListener;
-import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.model.Team;
+import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import eu.billyinc.mineralcontest.command.MineralContestCommand;
 import eu.billyinc.mineralcontest.listener.MineralContestListener;
@@ -24,6 +21,7 @@ import eu.billyinc.mineralcontest.manager.MineralContestManager;
 public class App extends JavaPlugin {
 
     private List<Team> teams = new ArrayList<Team>();
+    private final Map<UUID, FastBoard> boards = new HashMap<>();
     private GameState gameState = GameState.WAITING;
 
 	@Override
@@ -37,6 +35,8 @@ public class App extends JavaPlugin {
         getCommand("mc").setExecutor(new MineralContestCommand(this));
         getServer().getPluginManager().registerEvents(new MineralContestListener(), this);
     }
+
+
 
     @Override
     public void onDisable() {
@@ -60,12 +60,14 @@ public class App extends JavaPlugin {
     }
 
     public boolean allTeamAsAPlayer() {
-	    for (Team team : this.teams) {
-	        if (team.getPlayers().isEmpty()) {
-	            return false;
-            }
-        }
-	    return true;
+	    //TODO : remove always true condition
+        return true;
+//	    for (Team team : this.teams) {
+//	        if (team.getPlayers().isEmpty()) {
+//	            return false;
+//            }
+//        }
+//	    return true;
     }
 
     public GameState getGameState() {
@@ -74,5 +76,17 @@ public class App extends JavaPlugin {
 
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public Map<UUID, FastBoard> getBoards() {
+        return boards;
+    }
+
+    public void finishGame() {
+        this.gameState = GameState.FINISH;
+        for (Team team : this.teams) {
+            team.getPlayers().clear();
+        }
+        this.boards.clear();
     }
 }

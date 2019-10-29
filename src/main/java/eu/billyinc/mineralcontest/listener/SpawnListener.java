@@ -1,13 +1,12 @@
 package eu.billyinc.mineralcontest.listener;
 
 import eu.billyinc.mineralcontest.App;
+import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.command.TeamCommandExecutor;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.model.Team;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import eu.billyinc.mineralcontest.utils.FastBoard;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -18,12 +17,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scoreboard.*;
-import org.bukkit.util.Vector;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class SpawnListener implements Listener {
 
@@ -43,10 +40,15 @@ public class SpawnListener implements Listener {
         main.getCommand("setTeamSpawnLocation").setExecutor(new TeamCommandExecutor(main));
     }
 
-
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
 
+        FastBoard board = main.getBoards().remove(p.getUniqueId());
+
+        if (board != null) {
+            board.delete();
+        }
     }
 
     @EventHandler
@@ -59,7 +61,7 @@ public class SpawnListener implements Listener {
 
             BlockState blockState = signLocation.getBlock().getState();
             // player as chosen a team
-            if (blockState instanceof Sign) {
+            if (blockState instanceof Sign && main.getGameState() == GameState.WAITING) {
                 this.setClickedTeam(blockState, player);
             }
         }
@@ -109,21 +111,21 @@ public class SpawnListener implements Listener {
 
 
     private void displayScoreBoard(final Player player) {
-        // TODO : singleton quelques chose comme ça pour ne pas instancier 1000 Runnable
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
-            ScoreboardManager manager = Bukkit.getScoreboardManager();
-            final Scoreboard board = manager.getNewScoreboard();
-            final Objective objective = board.registerNewObjective("test", "dummy", "Display Name");
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            objective.setDisplayName(playerTeam.getTeam().getColoredName());
-            for (Player teamPlayer : playerTeam.getTeam().getPlayers()) {
-                Score teamPlayerScore = objective.getScore(teamPlayer.getName());
-                teamPlayerScore.setScore(0);
-            }
 
-            Score score3 = objective.getScore("§fTotal");
-            score3.setScore(1580);
-            player.setScoreboard(board);
-        },0, 20 * 10);
+        // TODO : singleton quelques chose comme ça pour ne pas instancier 1000 Runnable
+        Collection<String> lines =  new ArrayList<String>();
+        lines.add("");
+        for (Player teamPlayer : this.playerTeam.getTeam().getPlayers()) {
+            lines.add(teamPlayer.getName() + " : Score");
+            lines.add("");
+        }
+
+        lines.add("Total : " + this.playerTeam.getTeam().getScore());
+
+        FastBoard board = new FastBoard(player);
+        board.updateTitle(this.playerTeam.getTeam().getColoredName());
+        main.getBoards().put(player.getUniqueId(), board);
+        board.updateLines(lines);
     }
+
 }

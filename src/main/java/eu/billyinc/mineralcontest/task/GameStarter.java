@@ -20,15 +20,17 @@ public class GameStarter extends BukkitRunnable {
     public void run() {
 
         if (timer == 0) {
-            Bukkit.broadcastMessage("Lancement de la partie");
-            main.setGameState(GameState.PLAYING);
             cancel();
+            main.setGameState(GameState.PLAYING);
+            GameCycle gameCycle = new GameCycle(main);
+            gameCycle.runTaskTimer(main, 0, 20);
+        } else {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle(ChatColor.GREEN + String.valueOf(timer), "Lancement de la partie", 20, 20, 20);
+            }
         }
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendTitle(ChatColor.GREEN + String.valueOf(timer), "Lancement de la partie", 10, 20, 10);
-        }
 
-        timer--;
+        this.timer--;
     }
 }
