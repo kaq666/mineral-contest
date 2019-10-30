@@ -2,6 +2,7 @@ package eu.billyinc.mineralcontest.task;
 
 import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
+import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -35,12 +36,7 @@ public class GameCycle extends BukkitRunnable {
                 main.setGameState(GameState.WAITING);
             }
         } else {
-            for (FastBoard board : main.getBoards().values()) {
-                Collection<String> lines = board.getLines();
-                String dateFormat = new SimpleDateFormat("mm:ss").format(timer);
-                ((ArrayList<String>) lines).set(0, "Timer : " + dateFormat);
-                board.updateLines(lines);
-            }
+            main.updateScoreBoards(timer);
             this.timer-= 1000;
         }
 

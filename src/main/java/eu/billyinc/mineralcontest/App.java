@@ -1,13 +1,16 @@
 package eu.billyinc.mineralcontest;
 
 import eu.billyinc.mineralcontest.listener.SpawnListener;
+import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.model.Team;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import eu.billyinc.mineralcontest.command.MineralContestCommand;
@@ -22,6 +25,7 @@ public class App extends JavaPlugin {
 
     private List<Team> teams = new ArrayList<Team>();
     private final Map<UUID, FastBoard> boards = new HashMap<>();
+    private final Map<UUID, PlayerTeam> playerTeamMap = new HashMap<>();
     private GameState gameState = GameState.WAITING;
 
 	@Override
@@ -59,6 +63,10 @@ public class App extends JavaPlugin {
 	    return null;
     }
 
+    public List<Team> getTeams() {
+        return teams;
+    }
+
     public boolean allTeamAsAPlayer() {
 	    //TODO : remove always true condition
         return true;
@@ -82,11 +90,31 @@ public class App extends JavaPlugin {
         return boards;
     }
 
+    public Map<UUID, PlayerTeam> getPlayerTeamMap() {
+        return playerTeamMap;
+    }
+
+    public void updateScoreBoards(int timer) {
+        for (FastBoard board : this.getBoards().values()) {
+            PlayerTeam playerTeam = this.getPlayerTeamMap().get(board.getPlayer().getUniqueId());
+            Collection<String> lines = new ArrayList<>();
+            String dateFormat = new SimpleDateFormat("mm:ss").format(timer);
+            lines.add("Timer : " + dateFormat);
+            for (Player player : playerTeam.getTeam().getPlayers()) {
+                lines.add(player.getDisplayName() + ": Score");
+                lines.add("");
+            }
+            lines.add("Total : " + playerTeam.getTeam().getScore());
+            board.updateLines(lines);
+        }
+    }
+
     public void finishGame() {
         this.gameState = GameState.FINISH;
         for (Team team : this.teams) {
             team.getPlayers().clear();
         }
         this.boards.clear();
+        this.playerTeamMap.clear();
     }
 }

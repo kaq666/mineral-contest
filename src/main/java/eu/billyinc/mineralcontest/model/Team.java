@@ -20,6 +20,7 @@ public class Team {
         this.players = new ArrayList<Player>();
         this.color = chatColor;
         this.spawn = location;
+        this.score = 0;
     }
 
     public void addPlayer(Player player) {

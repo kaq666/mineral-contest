@@ -25,7 +25,6 @@ import java.util.Collection;
 public class SpawnListener implements Listener {
 
     private App main;
-    private PlayerTeam playerTeam;
 
     public SpawnListener(App main) {
         this.main = main;
@@ -34,7 +33,8 @@ public class SpawnListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
-        this.playerTeam = new PlayerTeam(player);
+        PlayerTeam playerTeam = new PlayerTeam(player);
+        main.getPlayerTeamMap().put(player.getUniqueId(), playerTeam);
         player.setGameMode(GameMode.ADVENTURE);
         // change to team
         main.getCommand("setTeamSpawnLocation").setExecutor(new TeamCommandExecutor(main));
@@ -45,6 +45,7 @@ public class SpawnListener implements Listener {
         Player p = e.getPlayer();
 
         FastBoard board = main.getBoards().remove(p.getUniqueId());
+        main.getPlayerTeamMap().remove(p.getUniqueId());
 
         if (board != null) {
             board.delete();
@@ -76,26 +77,31 @@ public class SpawnListener implements Listener {
     }
 
     private void setClickedTeam(BlockState blockState, Player player) {
+        PlayerTeam playerTeam = main.getPlayerTeamMap().get(player.getUniqueId());
         Sign sign = (Sign) blockState;
         if (sign.getLine(0).equals("[Choix des équipes]")) {
+            // if the player is already in a team, remove it first
+            for (Team team : main.getTeams()) {
+                team.getPlayers().remove(player);
+            }
             switch (sign.getLine(1)) {
                 case "Team Rouge":
-                    this.playerTeam.setTeam(main.getTeamByName("Team Rouge"));
+                    playerTeam.setTeam(main.getTeamByName("Team Rouge"));
                     break;
                 case "Team Bleue":
-                    this.playerTeam.setTeam(main.getTeamByName("Team Bleue"));
+                    playerTeam.setTeam(main.getTeamByName("Team Bleue"));
                     break;
                 case "Team Jaune":
-                    this.playerTeam.setTeam(main.getTeamByName("Team Jaune"));
+                    playerTeam.setTeam(main.getTeamByName("Team Jaune"));
                     break;
             }
-            this.displayScoreBoard(player);
+            this.displayScoreBoard(player, playerTeam);
             player.teleport(playerTeam.getTeam().getSpawn());
         }
     }
 
     private void authorize(Player player) {
-        Team team = playerTeam.getTeam();
+        Team team = main.getPlayerTeamMap().get(player.getUniqueId()).getTeam();
         if (team != null) {
             if (
                     (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.RED_TERRACOTTA && team != main.getTeamByName("Team Rouge"))
@@ -110,22 +116,21 @@ public class SpawnListener implements Listener {
     }
 
 
-    private void displayScoreBoard(final Player player) {
-
-        // TODO : singleton quelques chose comme ça pour ne pas instancier 1000 Runnable
+    private void displayScoreBoard(final Player player, PlayerTeam playerTeam) {
         Collection<String> lines =  new ArrayList<String>();
-        lines.add("");
-        for (Player teamPlayer : this.playerTeam.getTeam().getPlayers()) {
+        lines.add("00:00");
+        for (Player teamPlayer : playerTeam.getTeam().getPlayers()) {
             lines.add(teamPlayer.getName() + " : Score");
             lines.add("");
         }
 
-        lines.add("Total : " + this.playerTeam.getTeam().getScore());
+        lines.add("Total : " + playerTeam.getTeam().getScore());
+        main.updateScoreBoards(0);
 
         FastBoard board = new FastBoard(player);
-        board.updateTitle(this.playerTeam.getTeam().getColoredName());
-        main.getBoards().put(player.getUniqueId(), board);
+        board.updateTitle(playerTeam.getTeam().getColoredName());
         board.updateLines(lines);
+        main.getBoards().put(player.getUniqueId(), board);
     }
 
 }
