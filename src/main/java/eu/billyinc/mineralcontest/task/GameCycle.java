@@ -39,6 +39,5 @@ public class GameCycle extends BukkitRunnable {
             main.updateScoreBoards(timer);
             this.timer-= 1000;
         }
-
     }
 }
