@@ -106,7 +106,7 @@ public class SpawnListener implements Listener {
             if (
                     (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.RED_TERRACOTTA && team != main.getTeamByName("Team Rouge"))
                     || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.BLUE_TERRACOTTA && team != main.getTeamByName("Team Bleue"))
-                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.YELLOW_TERRACOTTA && team != main.getTeamByName("Team Yellow"))
+                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.YELLOW_TERRACOTTA && team != main.getTeamByName("Team Jaune"))
             ) {
                     player.sendMessage("zone non autorisée");
                     // TODO : voir pour le téleporte
