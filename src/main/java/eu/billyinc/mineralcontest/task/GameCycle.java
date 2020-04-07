@@ -4,9 +4,10 @@ import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.utils.FastBoard;
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Team;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class GameCycle extends BukkitRunnable {
             cancel();
 
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendTitle("Fin de la partie", "je sait pas encore si t'a gagner ou pas", 10, 40,10);
+                player.sendTitle("Fin de la partie", main.getWinners().getColor() + main.getWinners().getName() + " gagne la game", 10, 40,10);
                 for (FastBoard board : main.getBoards().values()) {
                     board.delete();
                 }

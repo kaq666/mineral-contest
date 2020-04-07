@@ -19,7 +19,6 @@ public class TeamCommandExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] arguments) {
 
-        // TODO : faire un switch ici aussi
         if (command.getName().equalsIgnoreCase("setTeamSpawnLocation")) {
             if (commandSender instanceof Player && arguments.length == 1 ) {
                 Player player = (Player) commandSender;

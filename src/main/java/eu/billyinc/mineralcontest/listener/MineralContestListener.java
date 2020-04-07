@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -20,12 +21,16 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import eu.billyinc.mineralcontest.manager.MineralContestManager;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
 import eu.billyinc.mineralcontest.model.MineralContestPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MineralContestListener implements Listener {
 
@@ -112,6 +117,44 @@ public class MineralContestListener implements Listener {
 
 	@EventHandler
 	public void onPlayerOpenInventory(InventoryOpenEvent e) {
+	}
+
+	@EventHandler
+	public void onPlayerDead(PlayerDeathEvent e) {
+		if (main.getGameState() == GameState.PLAYING) {
+			Player player = e.getEntity();
+			List<ItemStack> drops = e.getDrops();
+			drops.clear();
+			for (ItemStack item : player.getInventory()) {
+				if (
+						item.getType().equals(Material.EMERALD) ||
+						item.getType().equals(Material.GOLD_INGOT) ||
+						item.getType().equals(Material.DIAMOND) ||
+						item.getType().equals(Material.IRON_INGOT)
+				) {
+					drops.add(item);
+				}
+			}
+			e.setKeepLevel(true);
+		}
+	}
+
+	@EventHandler
+	public void onRespawn(PlayerRespawnEvent e) {
+		Player player = e.getPlayer();
+		System.out.println(player.getDisplayName() + " est Mort");
+		if (main.getGameState() == GameState.PLAYING) {
+			// send the player to it's spawn
+			e.setRespawnLocation(main.getPlayerTeamMap().get(player.getUniqueId()).getTeam().getSpawn());
+			player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+			player.getInventory().setItem(1, new ItemStack(Material.BOW));
+			player.getInventory().setItem(2, new ItemStack(Material.ARROW, 64));
+			// equip iron armor
+			player.getEquipment().setBoots(new ItemStack(Material.IRON_BOOTS));
+			player.getEquipment().setHelmet(new ItemStack(Material.IRON_HELMET));
+			player.getEquipment().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+			player.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+		}
 	}
 
 	@EventHandler

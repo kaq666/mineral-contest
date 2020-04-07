@@ -1,14 +1,18 @@
 package eu.billyinc.mineralcontest.model;
 
+import eu.billyinc.mineralcontest.App;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
 
+    private App main;
     private String name;
     private List<Player> players;
     private int score;
