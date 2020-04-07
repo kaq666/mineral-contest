@@ -52,16 +52,29 @@ public class MineralContestCommand implements CommandExecutor {
 		}
 
 		if (args[0].toLowerCase().equals("start") && sender instanceof Player) {
-			if (main.allTeamAsAPlayer()) {
-				if (main.getGameState() == GameState.WAITING) {
-					main.setGameState(GameState.STARTING);
-					GameStarter starter = new GameStarter(this.main);
-					starter.runTaskTimer(main, 0, 20);
+			if (sender.isOp()) {
+				if (main.allTeamAsAPlayer()) {
+					if (main.getGameState() == GameState.WAITING) {
+						main.setGameState(GameState.STARTING);
+						GameStarter starter = new GameStarter(this.main);
+						starter.runTaskTimer(main, 0, 20);
+					} else {
+						sender.sendMessage(ChatColor.RED + "Impossible de lancer le jeu");
+					}
 				} else {
-					sender.sendMessage(ChatColor.RED + "Impossible de lancer le jeu");
+					sender.sendMessage(ChatColor.RED + "Lancement impossible : Il reste une équipe vide");
 				}
 			} else {
-				sender.sendMessage(ChatColor.RED + "Lancement impossible : Il reste une équipe vide");
+				sender.sendMessage(ChatColor.RED + "Tu doit être opérateur du serveur pour éxécuter cette commande");
+			}
+		}
+
+		if (args[0].toLowerCase().equals("reset") && sender instanceof Player) {
+			if (sender.isOp()) {
+				main.setGameState(GameState.WAITING);
+				main.resetTeams();
+			} else {
+				sender.sendMessage(ChatColor.RED + "Tu doit être opérateur du serveur pour éxécuter cette commande");
 			}
 		}
 

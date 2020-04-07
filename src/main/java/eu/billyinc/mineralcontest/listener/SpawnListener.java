@@ -115,7 +115,6 @@ public class SpawnListener implements Listener {
         }
     }
 
-
     private void displayScoreBoard(final Player player, PlayerTeam playerTeam) {
         Collection<String> lines =  new ArrayList<String>();
         lines.add("00:00");

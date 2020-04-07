@@ -104,7 +104,8 @@ public class App extends JavaPlugin {
             String dateFormat = new SimpleDateFormat("mm:ss").format(timer);
             lines.add("Timer : " + dateFormat);
             for (Player player : playerTeam.getTeam().getPlayers()) {
-                lines.add(player.getDisplayName() + ": " + this.getInventoryValue(player) + " Points");
+                int score = this.getInventoryValue(player);
+                lines.add(player.getDisplayName() + ": " + score + " Points");
                 lines.add("");
             }
             lines.add("Total : " + playerTeam.getTeam().getScore());
@@ -114,9 +115,7 @@ public class App extends JavaPlugin {
 
     public void finishGame() {
         this.gameState = GameState.FINISH;
-        for (Team team : this.teams) {
-            team.getPlayers().clear();
-        }
+        this.resetTeams();
         this.boards.clear();
         this.playerTeamMap.clear();
     }
@@ -151,4 +150,21 @@ public class App extends JavaPlugin {
         return res;
     }
 
+    public void resetTeams() {
+	    for (Team team : this.teams) {
+	        team.getPlayers().clear();
+        }
+    }
+
+    public Team getWinners() {
+	    int max = 0;
+	    Team winners = this.teams.get(0);
+	    for (Team team : this.teams) {
+	        if (team.getScore() > max) {
+	            max = team.getScore();
+	            winners = team;
+            }
+        }
+        return winners;
+    }
 }
