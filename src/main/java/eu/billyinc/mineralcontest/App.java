@@ -7,7 +7,6 @@ import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +29,7 @@ public class App extends JavaPlugin {
     private final Map<UUID, FastBoard> boards = new HashMap<>();
     private final Map<UUID, PlayerTeam> playerTeamMap = new HashMap<>();
     private GameState gameState = GameState.WAITING;
+    private boolean areneActive = false;
 
 	@Override
     public void onEnable() {
@@ -95,6 +95,14 @@ public class App extends JavaPlugin {
 
     public Map<UUID, PlayerTeam> getPlayerTeamMap() {
         return playerTeamMap;
+    }
+
+    public boolean isAreneActive() {
+        return areneActive;
+    }
+
+    public void setAreneActive(boolean areneActive) {
+        this.areneActive = areneActive;
     }
 
     public void updateScoreBoards(int timer) {
