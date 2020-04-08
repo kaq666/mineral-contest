@@ -2,10 +2,7 @@ package eu.billyinc.mineralcontest.listener;
 
 import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -14,10 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -120,6 +114,21 @@ public class MineralContestListener implements Listener {
 	}
 
 	@EventHandler
+	public void onFurnaceBurn(FurnaceSmeltEvent e) {
+		if (main.getGameState() == GameState.PLAYING) {
+			if (
+					e.getSource().getType().equals(Material.IRON_SWORD) ||
+							e.getSource().getType().equals(Material.IRON_HELMET) ||
+							e.getSource().getType().equals(Material.IRON_BOOTS) ||
+							e.getSource().getType().equals(Material.IRON_LEGGINGS) ||
+							e.getSource().getType().equals(Material.IRON_CHESTPLATE)
+			) {
+				e.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler
 	public void onPlayerDead(PlayerDeathEvent e) {
 		if (main.getGameState() == GameState.PLAYING) {
 			Player player = e.getEntity();
@@ -129,8 +138,10 @@ public class MineralContestListener implements Listener {
 				if (
 						item.getType().equals(Material.EMERALD) ||
 						item.getType().equals(Material.GOLD_INGOT) ||
+						item.getType().equals(Material.GOLD_ORE) ||
 						item.getType().equals(Material.DIAMOND) ||
-						item.getType().equals(Material.IRON_INGOT)
+						item.getType().equals(Material.IRON_INGOT) ||
+						item.getType().equals(Material.IRON_ORE)
 				) {
 					drops.add(item);
 				}
@@ -142,7 +153,6 @@ public class MineralContestListener implements Listener {
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
-		System.out.println(player.getDisplayName() + " est Mort");
 		if (main.getGameState() == GameState.PLAYING) {
 			// send the player to it's spawn
 			e.setRespawnLocation(main.getPlayerTeamMap().get(player.getUniqueId()).getTeam().getSpawn());
@@ -159,37 +169,41 @@ public class MineralContestListener implements Listener {
 
 	@EventHandler
 	public void onPlayerDismissInventory(InventoryCloseEvent e) {
-		if (e.getInventory().getType().equals(InventoryType.HOPPER) && e.getPlayer() instanceof Player) {
-			Player player = (Player) e.getPlayer();
-			MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
-		
-			mineralContestPlayer.removeAllTasks();
-		}
+		if (main.getGameState() == GameState.PLAYING) {
+			if (e.getInventory().getType().equals(InventoryType.HOPPER) && e.getPlayer() instanceof Player) {
+				Player player = (Player) e.getPlayer();
+				MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
 
-		if (e.getInventory().getType().equals(InventoryType.SHULKER_BOX) && e.getPlayer() instanceof Player) {
-			int inventoryValue = 0;
-			Player player = (Player) e.getPlayer();
-			for (ItemStack itemStack : e.getInventory().getContents()) {
-				inventoryValue+= this.main.getItemStackValue(itemStack);
+				mineralContestPlayer.removeAllTasks();
 			}
-			if (main.getGameState() == GameState.PLAYING) {
-				main.getPlayerTeamMap().get(player.getUniqueId()).getTeam().setScore(inventoryValue);
+
+			if (e.getInventory().getType().equals(InventoryType.SHULKER_BOX) && e.getPlayer() instanceof Player) {
+				int inventoryValue = 0;
+				Player player = (Player) e.getPlayer();
+				for (ItemStack itemStack : e.getInventory().getContents()) {
+					inventoryValue += this.main.getItemStackValue(itemStack);
+				}
+				if (main.getGameState() == GameState.PLAYING) {
+					main.getPlayerTeamMap().get(player.getUniqueId()).getTeam().setScore(inventoryValue);
+				}
 			}
 		}
 	}
 	
 	@EventHandler
 	public void onDragMineralContestChestInventory(InventoryClickEvent e) {
-		if(e.getWhoClicked() instanceof Player) {
-			if(e.getInventory().getHolder() instanceof Chest) {
-				Chest chest = (Chest) e.getInventory().getHolder();
-				MineralContestChest mcChest = MineralContestManager.getMineralContestChestManager().getMineralContestChestByChest(chest);
-				
-				if(mcChest instanceof MineralContestChest) {
+		if (main.getGameState() == GameState.PLAYING) {
+			if(e.getWhoClicked() instanceof Player) {
+				if(e.getInventory().getHolder() instanceof Chest) {
+					Chest chest = (Chest) e.getInventory().getHolder();
+					MineralContestChest mcChest = MineralContestManager.getMineralContestChestManager().getMineralContestChestByChest(chest);
+
+					if(mcChest instanceof MineralContestChest) {
+						e.setCancelled(true);
+					}
+				} else if(e.getInventory().getType().equals(InventoryType.HOPPER)) {
 					e.setCancelled(true);
 				}
-			} else if(e.getInventory().getType().equals(InventoryType.HOPPER)) {
-				e.setCancelled(true);
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package eu.billyinc.mineralcontest.command;
 
 import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
+import eu.billyinc.mineralcontest.model.Team;
 import eu.billyinc.mineralcontest.task.GameStarter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -49,6 +50,18 @@ public class MineralContestCommand implements CommandExecutor {
 			mcChest.spawn();
 			
 			return true;
+		}
+
+		if (args[0].toLowerCase().equals("arene") && sender instanceof Player) {
+			Player player = (Player) sender;
+			if (main.isAreneActive()) {
+				Team team = main.getPlayerTeamMap().get(player.getUniqueId()).getTeam();
+				for (Player p : team.getPlayers()) {
+					p.teleport(MineralContestManager.getMineralContestGameManager().getArenaLocation());
+				}
+			} else {
+				player.sendMessage(ChatColor.RED + "L'arène n'est plus disponible");
+			}
 		}
 
 		if (args[0].toLowerCase().equals("start") && sender instanceof Player) {
