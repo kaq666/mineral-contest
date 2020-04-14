@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +31,7 @@ public class MineralContestListener implements Listener {
 
 	@EventHandler
 	public void onOpeningMineralContestChest(PlayerInteractEvent e) {
-		if (e.getClickedBlock().getState() instanceof Chest && e.getPlayer() instanceof Player) {
+		if (e.getClickedBlock() instanceof Block && e.getClickedBlock().getState() instanceof Chest && e.getPlayer() instanceof Player) {
 			Chest chest = (Chest) e.getClickedBlock().getState();
 			MineralContestChest mcChest = MineralContestManager.getMineralContestChestManager().getMineralContestChestByChest(chest);
 			

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -32,7 +33,7 @@ public class MineralContestChest {
 	private Location location;
 	
 	public MineralContestChest(Location location) {
-		this.location = location;
+		this.location = location.clone();
 		
 		this.emerald = ThreadLocalRandom.current().nextInt(0, MAX_EMERALD + 1);
 		this.diamond = ThreadLocalRandom.current().nextInt(0, MAX_DIAMOND + 1);
@@ -104,6 +105,82 @@ public class MineralContestChest {
 		
 		MineralContestManager.getMineralContestChestManager().addMineralContestChest(chest, this);
 	}
+	
+	private void removeParachute() {
+		this.location.clone().add(0, 1, 0).getBlock().setType(Material.AIR);
+		
+		this.location.clone().add(1, 2, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(-1, 2, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(2, 3, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(-2, 3, 0).getBlock().setType(Material.AIR);
+		
+		this.location.clone().add(2, 4, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(-2, 4, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(1, 5, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(-1, 5, 0).getBlock().setType(Material.AIR);
+		this.location.clone().add(0, 5, 0).getBlock().setType(Material.AIR);
+		
+		this.location.clone().add(2, 4, 1).getBlock().setType(Material.AIR);
+		this.location.clone().add(-2, 4, 1).getBlock().setType(Material.AIR);
+		this.location.clone().add(1, 5, 1).getBlock().setType(Material.AIR);
+		this.location.clone().add(-1, 5, 1).getBlock().setType(Material.AIR);
+		this.location.clone().add(0, 5, 1).getBlock().setType(Material.AIR);
+		
+		this.location.clone().add(2, 4, -1).getBlock().setType(Material.AIR);
+		this.location.clone().add(-2, 4, -1).getBlock().setType(Material.AIR);
+		this.location.clone().add(1, 5, -1).getBlock().setType(Material.AIR);
+		this.location.clone().add(-1, 5, -1).getBlock().setType(Material.AIR);
+		this.location.clone().add(0, 5, -1).getBlock().setType(Material.AIR);
+	}
+	
+	private void buildParachute() {
+			this.location.getBlock().setType(Material.CHEST);
+			
+			this.location.clone().add(1, 1, 0).getBlock().setType(Material.OAK_FENCE);
+			this.location.clone().add(-1, 1, 0).getBlock().setType(Material.OAK_FENCE);
+			this.location.clone().add(2, 2, 0).getBlock().setType(Material.OAK_FENCE);
+			this.location.clone().add(-2, 2, 0).getBlock().setType(Material.OAK_FENCE);
+			
+			this.location.clone().add(2, 3, 0).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(-2, 3, 0).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(1, 4, 0).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(-1, 4, 0).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(0, 4, 0).getBlock().setType(Material.WHITE_WOOL);
+			
+			this.location.clone().add(2, 3, 1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(-2, 3, 1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(1, 4, 1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(-1, 4, 1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(0, 4, 1).getBlock().setType(Material.WHITE_WOOL);
+			
+			this.location.clone().add(2, 3, -1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(-2, 3, -1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(1, 4, -1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(-1, 4, -1).getBlock().setType(Material.WHITE_WOOL);
+			this.location.clone().add(0, 4, -1).getBlock().setType(Material.WHITE_WOOL);
+	}
+	
+	public void drop() {
+		Bukkit.broadcastMessage("Un coffre atterrira bientôt en x:" + this.location.getX() + " y:" + this.location.getY() + " z:" + this.location.getZ());
+		double y = this.location.clone().getY();
+		this.location.setY(130);
+		
+		int i = 0;
+		while (i < 130 && this.location.clone().add(0, -(i+1), 0).getBlock().getType() == Material.AIR) {
+			Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
+				removeParachute();
+				buildParachute();
+				this.location.add(0, -1, 0);
+			}, i * 20);
+			i++;
+		}
+		
+		Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
+			removeParachute();
+			spawn();
+			Bukkit.broadcastMessage("Un coffre à atterit en x:" + this.location.getX() + " y:" + this.location.getY() + " z:" + this.location.getZ());
+		}, (i +1 ) * 20);
+	}
 
 	public void transferTo(Player player) {
 		this.hasBeenTransfered = true;
@@ -120,6 +197,8 @@ public class MineralContestChest {
 				chest.getInventory().remove(item);
 			}
 		}
+		
+		block.setType(Material.AIR);
 	}
 	
 	private int[] getItemsPositions() {
