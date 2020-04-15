@@ -7,7 +7,7 @@ import java.util.UUID;
 import eu.billyinc.mineralcontest.model.MineralContestPlayer;
 
 public class MineralContestPlayerManager {
-	List<MineralContestPlayer> mineralContestPlayerList = new ArrayList<MineralContestPlayer>();
+	private List<MineralContestPlayer> mineralContestPlayerList = new ArrayList<MineralContestPlayer>();
 
 	public List<MineralContestPlayer> getPlayers() {
 		return mineralContestPlayerList;
