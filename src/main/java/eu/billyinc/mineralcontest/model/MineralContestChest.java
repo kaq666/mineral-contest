@@ -197,8 +197,6 @@ public class MineralContestChest {
 				chest.getInventory().remove(item);
 			}
 		}
-		
-		block.setType(Material.AIR);
 	}
 	
 	private int[] getItemsPositions() {
