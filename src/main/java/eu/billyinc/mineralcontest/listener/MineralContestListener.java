@@ -3,8 +3,8 @@ package eu.billyinc.mineralcontest.listener;
 import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,7 +23,6 @@ import eu.billyinc.mineralcontest.manager.MineralContestManager;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
 import eu.billyinc.mineralcontest.model.MineralContestPlayer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MineralContestListener implements Listener {
@@ -37,11 +36,11 @@ public class MineralContestListener implements Listener {
 	@EventHandler
 	public void onOpeningMineralContestChest(PlayerInteractEvent e) {
 		if (e.getClickedBlock() != null) {
-			if (e.getClickedBlock().getState() instanceof Chest && e.getPlayer() instanceof Player) {
+			if (e.getClickedBlock() instanceof Block && e.getClickedBlock().getState() instanceof Chest && e.getPlayer() instanceof Player) {
 				Chest chest = (Chest) e.getClickedBlock().getState();
 				MineralContestChest mcChest = MineralContestManager.getMineralContestChestManager().getMineralContestChestByChest(chest);
 
-				if (mcChest instanceof MineralContestChest && !mcChest.isHasBeenTransfered()) {
+				if(mcChest instanceof MineralContestChest && !mcChest.isHasBeenTransfered()) {
 					e.setCancelled(true);
 
 					Player player = (Player) e.getPlayer();

@@ -5,6 +5,7 @@ import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.model.Team;
 import eu.billyinc.mineralcontest.task.GameStarter;
 import org.bukkit.ChatColor;
+import org.bukkit.WorldBorder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -47,8 +48,23 @@ public class MineralContestCommand implements CommandExecutor {
 		if (args[0].toLowerCase().equals("chest") && sender instanceof Player) {
 			MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getSpawn());
 			
-			mcChest.spawn();
+			mcChest.drop();
 			
+			return true;
+		}
+		
+		if (args[0].toLowerCase().equals("setlimit") && sender instanceof Player) {
+			WorldBorder wb = ((Player) sender).getWorld().getWorldBorder();
+			wb.setCenter(MineralContestManager.getMineralContestGameManager().getSpawn());
+			wb.setSize(Integer.valueOf(args[1]));
+
+			return true;
+		}
+
+		if (args[0].toLowerCase().equals("removelimit") && sender instanceof Player) {
+			WorldBorder wb = ((Player) sender).getWorld().getWorldBorder();
+			wb.reset();
+
 			return true;
 		}
 
