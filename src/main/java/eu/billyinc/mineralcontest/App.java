@@ -1,8 +1,10 @@
 package eu.billyinc.mineralcontest;
 
 import eu.billyinc.mineralcontest.listener.SpawnListener;
+import eu.billyinc.mineralcontest.model.MineralContestChest;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.model.Team;
+import eu.billyinc.mineralcontest.task.ArenaCycle;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -118,6 +120,20 @@ public class App extends JavaPlugin {
             }
             lines.add("Total : " + playerTeam.getTeam().getScore());
             board.updateLines(lines);
+        }
+    }
+
+    public void spawnArenaChest() {
+        if (this.getGameState() == GameState.PLAYING) {
+            MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getArenaChestLocation());
+            mcChest.spawn();
+
+            this.setAreneActive(true);
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle(ChatColor.DARK_PURPLE + "Arène", "une coffre d'arène est disponible", 10, 10, 20);
+            }
+            ArenaCycle arenaCycle = new ArenaCycle(this);
+            arenaCycle.runTaskTimer(this, 0, 20);
         }
     }
 

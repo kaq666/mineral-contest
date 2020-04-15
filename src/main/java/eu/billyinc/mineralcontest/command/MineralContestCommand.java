@@ -3,9 +3,9 @@ package eu.billyinc.mineralcontest.command;
 import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.model.Team;
+import eu.billyinc.mineralcontest.task.ArenaCycle;
 import eu.billyinc.mineralcontest.task.GameStarter;
-import org.bukkit.ChatColor;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -38,6 +38,13 @@ public class MineralContestCommand implements CommandExecutor {
 			
 			return true;
 		}
+
+		if (args[0].toLowerCase().equals("setarenachestlocation") && sender instanceof Player) {
+			MineralContestManager.getMineralContestGameManager().setArenaChestLocation(((Player) sender).getLocation());
+			sender.sendMessage("arena chest location seted!");
+
+			return true;
+		}
 		
 		if (args[0].toLowerCase().equals("setmapsize") && sender instanceof Player) {
 			MineralContestManager.getMineralContestGameManager().setMapSize(Integer.valueOf(args[1])); 
@@ -46,10 +53,16 @@ public class MineralContestCommand implements CommandExecutor {
 		}
 		
 		if (args[0].toLowerCase().equals("chest") && sender instanceof Player) {
-			MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getSpawn());
-			
-			mcChest.drop();
-			
+			if (main.getGameState() == GameState.PLAYING) {
+				MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getSpawn());
+
+				mcChest.drop();
+			}
+			return true;
+		}
+
+		if (args[0].toLowerCase().equals("arenachest") && sender instanceof Player) {
+			main.spawnArenaChest();
 			return true;
 		}
 		

@@ -56,7 +56,7 @@ public class MineralContestListener implements Listener {
 						mineralContestPlayer.addTask(
 								Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
 									inventory.setItem(x, new ItemStack(Material.GREEN_WOOL, 1));
-									player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 2.0f, (float) mcChest.getSounds()[x]);
+									player.playNote(player.getLocation(), Instrument.BIT, new Note(1));
 									chest.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, chest.getLocation(), 100);
 								}, 20 * (i + 1))
 										.getTaskId());

@@ -5,6 +5,7 @@ import org.bukkit.Location;
 public class MineralContestGameManager {
 	private Location spawn;
 	private Location arenaLocation;
+	private Location arenaChestLocation;
 	private int mapSize;
 	
 	public MineralContestGameManager() {
@@ -16,6 +17,15 @@ public class MineralContestGameManager {
 	public void setSpawn(Location spawn) {
 		this.spawn = spawn;
 	}
+
+	public Location getArenaChestLocation() {
+		return arenaChestLocation;
+	}
+
+	public void setArenaChestLocation(Location arenaChestLocation) {
+		this.arenaChestLocation = arenaChestLocation;
+	}
+
 	public Location getArenaLocation() {
 		return arenaLocation;
 	}
