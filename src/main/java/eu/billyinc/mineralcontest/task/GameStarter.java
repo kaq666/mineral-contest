@@ -17,7 +17,6 @@ public class GameStarter extends BukkitRunnable {
 
     @Override
     public void run() {
-        World world = Bukkit.getWorld("world");
         if (timer == 0) {
             cancel();
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -26,7 +25,7 @@ public class GameStarter extends BukkitRunnable {
             }
             main.setGameState(GameState.PLAYING);
             GameCycle gameCycle = new GameCycle(main);
-            gameCycle.runTaskTimer(main, 0, 20);
+            gameCycle.runTaskTimer(main, 0, 1);
         } else {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendTitle(ChatColor.GREEN + String.valueOf(timer), "Lancement de la partie", 20, 20, 20);

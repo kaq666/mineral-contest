@@ -79,7 +79,7 @@ public class SpawnListener implements Listener {
     private void setClickedTeam(BlockState blockState, Player player) {
         PlayerTeam playerTeam = main.getPlayerTeamMap().get(player.getUniqueId());
         Sign sign = (Sign) blockState;
-        if (sign.getLine(0).equals("[Choix des équipes]")) {
+        if (sign.getLine(0).equals("[Choix équipes]")) {
             // if the player is already in a team, remove it first
             for (Team team : main.getTeams()) {
                 team.getPlayers().remove(player);

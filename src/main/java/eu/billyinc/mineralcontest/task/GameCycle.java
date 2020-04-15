@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
 
 public class GameCycle extends BukkitRunnable {
 
     private App main;
-    private int timer = 100000;
     private List<Integer> arenas = new ArrayList<>();
+    private Timer javaTimer = new Timer();
+    private GameTimer gameTimer = new GameTimer();
 
     public GameCycle(App main) {
         this.main = main;
@@ -31,14 +33,12 @@ public class GameCycle extends BukkitRunnable {
         }
         arenas.add(new Random().nextInt(9) * 1000 );
         System.out.println(arenas);
+        javaTimer.schedule(this.gameTimer, 0, 1000);
     }
 
     @Override
     public void run() {
-
-        if (timer == 0) {
-            cancel();
-
+        if (gameTimer.getRemaingGameTime() < 0) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendTitle("Fin de la partie", main.getWinners().getColor() + main.getWinners().getName() + " gagne la game", 10, 40,10);
                 for (FastBoard board : main.getBoards().values()) {
@@ -48,10 +48,8 @@ public class GameCycle extends BukkitRunnable {
                 main.setGameState(GameState.WAITING);
             }
         } else {
-            System.out.println(timer);
-            main.updateScoreBoards(timer);
-            this.timer-= 1000;
-            if (arenas.contains(timer)) {
+            main.updateScoreBoards(gameTimer.getRemaingGameTime());
+            if (arenas.contains(gameTimer.getRemaingGameTime())) {
                 System.out.println("Arena time !!!");
                 main.spawnArenaChest();
             }

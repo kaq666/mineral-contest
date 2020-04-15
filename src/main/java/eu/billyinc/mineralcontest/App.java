@@ -111,9 +111,13 @@ public class App extends JavaPlugin {
         for (FastBoard board : this.getBoards().values()) {
             PlayerTeam playerTeam = this.getPlayerTeamMap().get(board.getPlayer().getUniqueId());
             Collection<String> lines = new ArrayList<>();
-            String dateFormat = new SimpleDateFormat("mm:ss").format(timer);
-            lines.add("Timer : " + dateFormat);
+            
+            int minutes = ~~((timer % 3600) / 60);
+            int secondes = ~~timer % 60;
+            
+            lines.add("Timer : " + minutes + ":" + secondes);
             for (Player player : playerTeam.getTeam().getPlayers()) {
+            	player.sendMessage("t" + timer);
                 int score = this.getInventoryValue(player);
                 lines.add(player.getDisplayName() + ": " + score + " Points");
                 lines.add("");
