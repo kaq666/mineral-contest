@@ -26,4 +26,15 @@ public class MineralContestChestManager {
 		this.getChestHashedMap().remove(chest);
 	}
 	
+	public MineralContestChest getMineralContestArenaChest() {
+		for (Chest chest : this.getChestHashedMap().keySet()) {
+			MineralContestChest mineralContestChest = this.getMineralContestChestByChest(chest);
+			if (mineralContestChest instanceof MineralContestChest && mineralContestChest.isArenaChest()) {
+				return mineralContestChest;
+			}
+		}
+		
+		return null;
+	}
+	
 }

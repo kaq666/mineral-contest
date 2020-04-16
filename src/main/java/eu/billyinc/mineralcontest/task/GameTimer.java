@@ -5,7 +5,7 @@ import java.util.TimerTask;
 public class GameTimer extends TimerTask {
 	
 	private volatile int remainingCountDownTime = 10;
-	private volatile int remainingGameTime = 3600;
+	private volatile int remainingGameTime = 120;
 	
 	public GameTimer() {
 	}
@@ -31,7 +31,7 @@ public class GameTimer extends TimerTask {
 	}
 	
 	public int getRemaingCountdownTime() {
-		return this.remainingGameTime;
+		return this.remainingCountDownTime;
 	}
 
 }

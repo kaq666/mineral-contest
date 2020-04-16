@@ -1,9 +1,7 @@
 package eu.billyinc.mineralcontest.command;
 
-import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.model.Team;
-import eu.billyinc.mineralcontest.task.ArenaCycle;
 import eu.billyinc.mineralcontest.task.GameCycle;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -15,12 +13,6 @@ import eu.billyinc.mineralcontest.manager.MineralContestManager;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
 
 public class MineralContestCommand implements CommandExecutor {
-
-	private App main;
-
-	public MineralContestCommand(App main) {
-		this.main = main;
-	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -53,7 +45,7 @@ public class MineralContestCommand implements CommandExecutor {
 		}
 		
 		if (args[0].toLowerCase().equals("chest") && sender instanceof Player) {
-			if (main.getGameState() == GameState.PLAYING) {
+			if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 				MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getSpawn());
 
 				mcChest.drop();
@@ -62,7 +54,7 @@ public class MineralContestCommand implements CommandExecutor {
 		}
 
 		if (args[0].toLowerCase().equals("arenachest") && sender instanceof Player) {
-			main.spawnArenaChest();
+			MineralContestManager.getApp().spawnArenaChest();
 			return true;
 		}
 		
@@ -83,8 +75,9 @@ public class MineralContestCommand implements CommandExecutor {
 
 		if (args[0].toLowerCase().equals("arene") && sender instanceof Player) {
 			Player player = (Player) sender;
-			if (main.isAreneActive()) {
-				Team team = main.getPlayerTeamMap().get(player.getUniqueId()).getTeam();
+			
+			if (MineralContestManager.getMineralContestChestManager().getMineralContestArenaChest() instanceof MineralContestChest) {
+				Team team = MineralContestManager.getApp().getPlayerTeamMap().get(player.getUniqueId()).getTeam();
 				for (Player p : team.getPlayers()) {
 					p.teleport(MineralContestManager.getMineralContestGameManager().getArenaLocation());
 				}
@@ -95,11 +88,11 @@ public class MineralContestCommand implements CommandExecutor {
 
 		if (args[0].toLowerCase().equals("start") && sender instanceof Player) {
 			if (sender.isOp()) {
-				if (main.allTeamAsAPlayer()) {
-					if (main.getGameState() == GameState.WAITING) {
-						main.setGameState(GameState.STARTING);
-						GameCycle starter = new GameCycle(this.main);
-						starter.runTaskTimer(main, 0, 20);
+				if (MineralContestManager.getApp().allTeamAsAPlayer()) {
+					if (MineralContestManager.getApp().getGameState() == GameState.WAITING) {
+						MineralContestManager.getApp().setGameState(GameState.STARTING);
+						GameCycle starter = new GameCycle();
+						starter.runTaskTimer(MineralContestManager.getApp(), 0, 20);
 					} else {
 						sender.sendMessage(ChatColor.RED + "Impossible de lancer le jeu");
 					}
@@ -113,8 +106,8 @@ public class MineralContestCommand implements CommandExecutor {
 
 		if (args[0].toLowerCase().equals("reset") && sender instanceof Player) {
 			if (sender.isOp()) {
-				main.setGameState(GameState.WAITING);
-				main.resetTeams();
+				MineralContestManager.getApp().setGameState(GameState.WAITING);
+				MineralContestManager.getApp().resetTeams();
 			} else {
 				sender.sendMessage(ChatColor.RED + "Tu doit être opérateur du serveur pour éxécuter cette commande");
 			}

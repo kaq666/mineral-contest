@@ -4,7 +4,6 @@ import eu.billyinc.mineralcontest.listener.SpawnListener;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.model.Team;
-import eu.billyinc.mineralcontest.task.ArenaCycle;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,7 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import eu.billyinc.mineralcontest.command.MineralContestCommand;
@@ -31,18 +29,17 @@ public class App extends JavaPlugin {
     private final Map<UUID, FastBoard> boards = new HashMap<>();
     private final Map<UUID, PlayerTeam> playerTeamMap = new HashMap<>();
     private GameState gameState = GameState.WAITING;
-    private boolean areneActive = false;
 
 	@Override
     public void onEnable() {
         super.onEnable();
         System.out.println("Mineral Contest Enabled");
-        SpawnListener spawnListener = new SpawnListener(this);
-        this.getServer().getPluginManager().registerEvents(spawnListener, this);
-        this.registerTeams();
         MineralContestManager.setApp(this);
-        getCommand("mc").setExecutor(new MineralContestCommand(this));
-        getServer().getPluginManager().registerEvents(new MineralContestListener(this), this);
+        
+        this.getCommand("mc").setExecutor(new MineralContestCommand());
+        this.getServer().getPluginManager().registerEvents(new SpawnListener(), this);
+        this.getServer().getPluginManager().registerEvents(new MineralContestListener(), this);
+        this.registerTeams();
     }
 
 
@@ -99,14 +96,6 @@ public class App extends JavaPlugin {
         return playerTeamMap;
     }
 
-    public boolean isAreneActive() {
-        return areneActive;
-    }
-
-    public void setAreneActive(boolean areneActive) {
-        this.areneActive = areneActive;
-    }
-
     public void updateScoreBoards(int timer) {
         for (FastBoard board : this.getBoards().values()) {
             PlayerTeam playerTeam = this.getPlayerTeamMap().get(board.getPlayer().getUniqueId());
@@ -115,9 +104,13 @@ public class App extends JavaPlugin {
             int minutes = ~~((timer % 3600) / 60);
             int secondes = ~~timer % 60;
             
-            lines.add("Timer : " + minutes + ":" + secondes);
+            if (secondes < 10) {
+            	lines.add("Timer : " + minutes + ":" + "0" + secondes);
+            } else {
+            	lines.add("Timer : " + minutes + ":" + secondes);
+            }
+            
             for (Player player : playerTeam.getTeam().getPlayers()) {
-            	player.sendMessage("t" + timer);
                 int score = this.getInventoryValue(player);
                 lines.add(player.getDisplayName() + ": " + score + " Points");
                 lines.add("");
@@ -129,15 +122,8 @@ public class App extends JavaPlugin {
 
     public void spawnArenaChest() {
         if (this.getGameState() == GameState.PLAYING) {
-            MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getArenaChestLocation());
+            MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getArenaChestLocation(), true);
             mcChest.spawn();
-
-            this.setAreneActive(true);
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendTitle(ChatColor.DARK_PURPLE + "Arène", "une coffre d'arène est disponible", 10, 10, 20);
-            }
-            ArenaCycle arenaCycle = new ArenaCycle(this);
-            arenaCycle.runTaskTimer(this, 0, 20);
         }
     }
 
@@ -173,6 +159,8 @@ public class App extends JavaPlugin {
                 case EMERALD:
                     res = itemStack.getAmount() * 300;
                     break;
+                default:
+                	break;
             }
         }
         return res;

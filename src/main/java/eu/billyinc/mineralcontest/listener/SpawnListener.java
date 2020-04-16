@@ -1,8 +1,8 @@
 package eu.billyinc.mineralcontest.listener;
 
-import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.command.TeamCommandExecutor;
+import eu.billyinc.mineralcontest.manager.MineralContestManager;
 import eu.billyinc.mineralcontest.model.PlayerTeam;
 import eu.billyinc.mineralcontest.model.Team;
 import eu.billyinc.mineralcontest.utils.FastBoard;
@@ -24,28 +24,22 @@ import java.util.Collection;
 
 public class SpawnListener implements Listener {
 
-    private App main;
-
-    public SpawnListener(App main) {
-        this.main = main;
-    }
-
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
         PlayerTeam playerTeam = new PlayerTeam(player);
-        main.getPlayerTeamMap().put(player.getUniqueId(), playerTeam);
+        MineralContestManager.getApp().getPlayerTeamMap().put(player.getUniqueId(), playerTeam);
         player.setGameMode(GameMode.ADVENTURE);
         // change to team
-        main.getCommand("setTeamSpawnLocation").setExecutor(new TeamCommandExecutor(main));
+        MineralContestManager.getApp().getCommand("setTeamSpawnLocation").setExecutor(new TeamCommandExecutor());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
 
-        FastBoard board = main.getBoards().remove(p.getUniqueId());
-        main.getPlayerTeamMap().remove(p.getUniqueId());
+        FastBoard board = MineralContestManager.getApp().getBoards().remove(p.getUniqueId());
+        MineralContestManager.getApp().getPlayerTeamMap().remove(p.getUniqueId());
 
         if (board != null) {
             board.delete();
@@ -62,7 +56,7 @@ public class SpawnListener implements Listener {
 
             BlockState blockState = signLocation.getBlock().getState();
             // player as chosen a team
-            if (blockState instanceof Sign && main.getGameState() == GameState.WAITING) {
+            if (blockState instanceof Sign && MineralContestManager.getApp().getGameState() == GameState.WAITING) {
                 this.setClickedTeam(blockState, player);
             }
         }
@@ -77,22 +71,22 @@ public class SpawnListener implements Listener {
     }
 
     private void setClickedTeam(BlockState blockState, Player player) {
-        PlayerTeam playerTeam = main.getPlayerTeamMap().get(player.getUniqueId());
+        PlayerTeam playerTeam = MineralContestManager.getApp().getPlayerTeamMap().get(player.getUniqueId());
         Sign sign = (Sign) blockState;
         if (sign.getLine(0).equals("[Choix équipes]")) {
             // if the player is already in a team, remove it first
-            for (Team team : main.getTeams()) {
+            for (Team team : MineralContestManager.getApp().getTeams()) {
                 team.getPlayers().remove(player);
             }
             switch (sign.getLine(1)) {
                 case "Team Rouge":
-                    playerTeam.setTeam(main.getTeamByName("Team Rouge"));
+                    playerTeam.setTeam(MineralContestManager.getApp().getTeamByName("Team Rouge"));
                     break;
                 case "Team Bleue":
-                    playerTeam.setTeam(main.getTeamByName("Team Bleue"));
+                    playerTeam.setTeam(MineralContestManager.getApp().getTeamByName("Team Bleue"));
                     break;
                 case "Team Jaune":
-                    playerTeam.setTeam(main.getTeamByName("Team Jaune"));
+                    playerTeam.setTeam(MineralContestManager.getApp().getTeamByName("Team Jaune"));
                     break;
             }
             this.displayScoreBoard(player, playerTeam);
@@ -101,12 +95,12 @@ public class SpawnListener implements Listener {
     }
 
     private void authorize(Player player) {
-        Team team = main.getPlayerTeamMap().get(player.getUniqueId()).getTeam();
+        Team team = MineralContestManager.getApp().getPlayerTeamMap().get(player.getUniqueId()).getTeam();
         if (team != null) {
             if (
-                    (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.RED_TERRACOTTA && team != main.getTeamByName("Team Rouge"))
-                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.BLUE_TERRACOTTA && team != main.getTeamByName("Team Bleue"))
-                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.YELLOW_TERRACOTTA && team != main.getTeamByName("Team Jaune"))
+                    (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.RED_TERRACOTTA && team != MineralContestManager.getApp().getTeamByName("Team Rouge"))
+                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.BLUE_TERRACOTTA && team != MineralContestManager.getApp().getTeamByName("Team Bleue"))
+                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.YELLOW_TERRACOTTA && team != MineralContestManager.getApp().getTeamByName("Team Jaune"))
             ) {
                     player.sendMessage("zone non autorisée");
                     // TODO : voir pour le téleporte
@@ -124,12 +118,12 @@ public class SpawnListener implements Listener {
         }
 
         lines.add("Total : " + playerTeam.getTeam().getScore());
-        main.updateScoreBoards(0);
+        MineralContestManager.getApp().updateScoreBoards(0);
 
         FastBoard board = new FastBoard(player);
         board.updateTitle(playerTeam.getTeam().getColoredName());
         board.updateLines(lines);
-        main.getBoards().put(player.getUniqueId(), board);
+        MineralContestManager.getApp().getBoards().put(player.getUniqueId(), board);
     }
 
 }

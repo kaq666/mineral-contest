@@ -1,6 +1,5 @@
 package eu.billyinc.mineralcontest.listener;
 
-import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -26,12 +25,6 @@ import eu.billyinc.mineralcontest.model.MineralContestPlayer;
 import java.util.List;
 
 public class MineralContestListener implements Listener {
-
-	private App main;
-
-	public MineralContestListener(App app) {
-		this.main = app;
-	}
 
 	@EventHandler
 	public void onOpeningMineralContestChest(PlayerInteractEvent e) {
@@ -114,7 +107,7 @@ public class MineralContestListener implements Listener {
 
 	@EventHandler
 	public void onFurnaceBurn(FurnaceSmeltEvent e) {
-		if (main.getGameState() == GameState.PLAYING) {
+		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			if (
 					e.getSource().getType().equals(Material.IRON_SWORD) ||
 							e.getSource().getType().equals(Material.IRON_HELMET) ||
@@ -129,7 +122,7 @@ public class MineralContestListener implements Listener {
 
 	@EventHandler
 	public void onPlayerDead(PlayerDeathEvent e) {
-		if (main.getGameState() == GameState.PLAYING) {
+		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			Player player = e.getEntity();
 			List<ItemStack> drops = e.getDrops();
 			drops.clear();
@@ -152,9 +145,9 @@ public class MineralContestListener implements Listener {
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
-		if (main.getGameState() == GameState.PLAYING) {
+		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			// send the player to it's spawn
-			e.setRespawnLocation(main.getPlayerTeamMap().get(player.getUniqueId()).getTeam().getSpawn());
+			e.setRespawnLocation(MineralContestManager.getApp().getPlayerTeamMap().get(player.getUniqueId()).getTeam().getSpawn());
 			player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
 			player.getInventory().setItem(1, new ItemStack(Material.BOW));
 			player.getInventory().setItem(2, new ItemStack(Material.ARROW, 64));
@@ -168,7 +161,7 @@ public class MineralContestListener implements Listener {
 
 	@EventHandler
 	public void onPlayerDismissInventory(InventoryCloseEvent e) {
-		if (main.getGameState() == GameState.PLAYING) {
+		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			if (e.getInventory().getType().equals(InventoryType.HOPPER) && e.getPlayer() instanceof Player) {
 				Player player = (Player) e.getPlayer();
 				MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
@@ -180,10 +173,10 @@ public class MineralContestListener implements Listener {
 				int inventoryValue = 0;
 				Player player = (Player) e.getPlayer();
 				for (ItemStack itemStack : e.getInventory().getContents()) {
-					inventoryValue += this.main.getItemStackValue(itemStack);
+					inventoryValue += MineralContestManager.getApp().getItemStackValue(itemStack);
 				}
-				if (main.getGameState() == GameState.PLAYING) {
-					main.getPlayerTeamMap().get(player.getUniqueId()).getTeam().setScore(inventoryValue);
+				if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
+					MineralContestManager.getApp().getPlayerTeamMap().get(player.getUniqueId()).getTeam().setScore(inventoryValue);
 				}
 			}
 		}
@@ -191,7 +184,7 @@ public class MineralContestListener implements Listener {
 	
 	@EventHandler
 	public void onDragMineralContestChestInventory(InventoryClickEvent e) {
-		if (main.getGameState() == GameState.PLAYING) {
+		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			if(e.getWhoClicked() instanceof Player) {
 				if(e.getInventory().getHolder() instanceof Chest) {
 					Chest chest = (Chest) e.getInventory().getHolder();

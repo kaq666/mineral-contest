@@ -31,9 +31,21 @@ public class MineralContestChest {
 	private int iron;
 	private boolean hasBeenTransfered = false;
 	private Location location;
+	private boolean isArenaChest;
 	
 	public MineralContestChest(Location location) {
 		this.location = location.clone();
+		this.isArenaChest = false;
+		
+		this.emerald = ThreadLocalRandom.current().nextInt(0, MAX_EMERALD + 1);
+		this.diamond = ThreadLocalRandom.current().nextInt(0, MAX_DIAMOND + 1);
+		this.gold = ThreadLocalRandom.current().nextInt(0, MAX_GOLD + 1);
+		this.iron = ThreadLocalRandom.current().nextInt(0, MAX_IRON + 1);
+	}
+	
+	public MineralContestChest(Location location, boolean isArenaChest) {
+		this.location = location.clone();
+		this.isArenaChest = isArenaChest;
 		
 		this.emerald = ThreadLocalRandom.current().nextInt(0, MAX_EMERALD + 1);
 		this.diamond = ThreadLocalRandom.current().nextInt(0, MAX_DIAMOND + 1);
@@ -100,7 +112,8 @@ public class MineralContestChest {
 		this.location.setY(130);
 
 		int i = 0;
-		while (i < 130 && this.location.clone().add(0, -(i+1), 0).getBlock().getType() == Material.AIR) {
+		
+		while (i < 130 && this.location.clone().add(0, -(i+1), 0).getBlock().isPassable()) {
 			Bukkit.getScheduler().runTaskLater(MineralContestManager.getApp(), () -> {
 				removeParachute();
 				buildParachute();
@@ -167,6 +180,10 @@ public class MineralContestChest {
 	public void setLocation(Location location) {
 		this.location = location;
 	}
+	
+	public boolean isArenaChest() {
+		return this.isArenaChest;
+	}
 
 	public void spawn() {		
 		Block block = this.location.getBlock();
@@ -196,6 +213,8 @@ public class MineralContestChest {
 				chest.getInventory().remove(item);
 			}
 		}
+		
+		MineralContestManager.getMineralContestChestManager().removeMineralContestChest(chest);
 	}
 	
 	private int[] getItemsPositions() {
