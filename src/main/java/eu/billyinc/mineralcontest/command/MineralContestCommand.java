@@ -1,7 +1,7 @@
 package eu.billyinc.mineralcontest.command;
 
 import eu.billyinc.mineralcontest.GameState;
-import eu.billyinc.mineralcontest.model.Team;
+import eu.billyinc.mineralcontest.model.MineralContestTeam;
 import eu.billyinc.mineralcontest.task.GameCycle;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -11,18 +11,12 @@ import org.bukkit.entity.Player;
 
 import eu.billyinc.mineralcontest.manager.MineralContestManager;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
+import eu.billyinc.mineralcontest.model.MineralContestPlayer;
 
 public class MineralContestCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		
-		if (args[0].toLowerCase().equals("setspawn") && sender instanceof Player) {
-			MineralContestManager.getMineralContestGameManager().setSpawn(((Player) sender).getLocation().getBlock().getLocation());
-			sender.sendMessage("spawn seted!");
-			
-			return true;
-		}
 		
 		if (args[0].toLowerCase().equals("setarenalocation") && sender instanceof Player) {
 			MineralContestManager.getMineralContestGameManager().setArenaLocation(((Player) sender).getLocation());
@@ -45,11 +39,11 @@ public class MineralContestCommand implements CommandExecutor {
 		}
 		
 		if (args[0].toLowerCase().equals("chest") && sender instanceof Player) {
-			if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
-				MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getSpawn());
-
-				mcChest.drop();
-			}
+			Player player = (Player) sender;
+			
+			MineralContestChest mcChest = new MineralContestChest(player.getLocation());
+			mcChest.drop();
+			
 			return true;
 		}
 
@@ -60,7 +54,7 @@ public class MineralContestCommand implements CommandExecutor {
 		
 		if (args[0].toLowerCase().equals("setlimit") && sender instanceof Player) {
 			WorldBorder wb = ((Player) sender).getWorld().getWorldBorder();
-			wb.setCenter(MineralContestManager.getMineralContestGameManager().getSpawn());
+			wb.setCenter(MineralContestManager.getMineralContestGameManager().getArenaChestLocation());
 			wb.setSize(Integer.valueOf(args[1]));
 
 			return true;
@@ -77,9 +71,14 @@ public class MineralContestCommand implements CommandExecutor {
 			Player player = (Player) sender;
 			
 			if (MineralContestManager.getMineralContestChestManager().getMineralContestArenaChest() instanceof MineralContestChest) {
-				Team team = MineralContestManager.getApp().getPlayerTeamMap().get(player.getUniqueId()).getTeam();
-				for (Player p : team.getPlayers()) {
-					p.teleport(MineralContestManager.getMineralContestGameManager().getArenaLocation());
+				MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
+				if (mineralContestPlayer instanceof MineralContestPlayer) {
+					MineralContestTeam mineralContestTeam = MineralContestManager.getApp().getTeamByName(mineralContestPlayer.getTeamName());
+					if (mineralContestTeam instanceof MineralContestTeam) {
+						for (Player p : mineralContestTeam.getPlayers()) {
+							p.teleport(MineralContestManager.getMineralContestGameManager().getArenaLocation());
+						}
+					}
 				}
 			} else {
 				player.sendMessage(ChatColor.RED + "L'arène n'est plus disponible");
@@ -111,6 +110,31 @@ public class MineralContestCommand implements CommandExecutor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "Tu doit être opérateur du serveur pour éxécuter cette commande");
 			}
+		}
+		
+		if (args[0].toLowerCase().equals("pls") && sender instanceof Player) {
+			Player player = (Player) sender;
+			MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
+			if (mineralContestPlayer instanceof MineralContestPlayer) {
+				sender.sendMessage(ChatColor.RED + mineralContestPlayer.getPlayer().getName() + " a pour team " + mineralContestPlayer.getTeamName());
+			}
+		}
+		
+		if (args[0].toLowerCase().equals("setteamspawnlocation") && sender instanceof Player) {
+			if (args.length > 1 ) {
+                Player player = (Player) sender;
+                MineralContestTeam team = MineralContestManager.getApp().getTeamByName("Team " + args[1]);
+                if (player.isOp()) {
+                    if (team != null) {
+                        team.setSpawn(player.getLocation());
+                        sender.sendMessage("Le spawn de la " + team.getName() + " à été définie sur votre position");
+                    } else {
+                        sender.sendMessage("Equipe introuvable : argument attendu <Jaune> pour la Team Jaune");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Tu doit être opérateur du serveur pour éxécuter cette commande");
+                }
+            }
 		}
 
 		return false;

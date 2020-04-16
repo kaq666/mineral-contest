@@ -1,9 +1,8 @@
 package eu.billyinc.mineralcontest;
 
-import eu.billyinc.mineralcontest.listener.SpawnListener;
 import eu.billyinc.mineralcontest.model.MineralContestChest;
-import eu.billyinc.mineralcontest.model.PlayerTeam;
-import eu.billyinc.mineralcontest.model.Team;
+import eu.billyinc.mineralcontest.model.MineralContestPlayer;
+import eu.billyinc.mineralcontest.model.MineralContestTeam;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,7 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 import eu.billyinc.mineralcontest.command.MineralContestCommand;
-import eu.billyinc.mineralcontest.listener.MineralContestListener;
+import eu.billyinc.mineralcontest.listener.BlockListener;
+import eu.billyinc.mineralcontest.listener.EntityListener;
+import eu.billyinc.mineralcontest.listener.FurnaceListener;
+import eu.billyinc.mineralcontest.listener.InventoryListener;
+import eu.billyinc.mineralcontest.listener.PlayerListener;
 import eu.billyinc.mineralcontest.manager.MineralContestManager;
 
 /**
@@ -25,9 +28,8 @@ import eu.billyinc.mineralcontest.manager.MineralContestManager;
  */
 public class App extends JavaPlugin {
 
-    private List<Team> teams = new ArrayList<Team>();
+    private List<MineralContestTeam> teams = new ArrayList<MineralContestTeam>();
     private final Map<UUID, FastBoard> boards = new HashMap<>();
-    private final Map<UUID, PlayerTeam> playerTeamMap = new HashMap<>();
     private GameState gameState = GameState.WAITING;
 
 	@Override
@@ -37,8 +39,13 @@ public class App extends JavaPlugin {
         MineralContestManager.setApp(this);
         
         this.getCommand("mc").setExecutor(new MineralContestCommand());
-        this.getServer().getPluginManager().registerEvents(new SpawnListener(), this);
-        this.getServer().getPluginManager().registerEvents(new MineralContestListener(), this);
+        
+        this.getServer().getPluginManager().registerEvents(new BlockListener(), this);
+        this.getServer().getPluginManager().registerEvents(new EntityListener(), this);
+        this.getServer().getPluginManager().registerEvents(new FurnaceListener(), this);
+        this.getServer().getPluginManager().registerEvents(new InventoryListener(), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        
         this.registerTeams();
     }
 
@@ -51,13 +58,13 @@ public class App extends JavaPlugin {
     }
 
     private void registerTeams() {
-	    this.teams.add(new Team("Team Bleue", ChatColor.BLUE,  new Location(Bukkit.getServer().getWorld("World"),-352, 65, -342, 180f, 1.9f)));
-	    this.teams.add(new Team("Team Jaune", ChatColor.YELLOW, new Location(Bukkit.getServer().getWorld("World"),-233, 65, -342, 90f, 1.5f)));
-	    this.teams.add(new Team("Team Rouge", ChatColor.RED, new Location(Bukkit.getServer().getWorld("World"),-278, 65, -387, -90f, 0f)));
+	    this.teams.add(new MineralContestTeam("Team Bleue", ChatColor.BLUE,  new Location(Bukkit.getServer().getWorld("World"),-352, 65, -342, 180f, 1.9f)));
+	    this.teams.add(new MineralContestTeam("Team Jaune", ChatColor.YELLOW, new Location(Bukkit.getServer().getWorld("World"),-233, 65, -342, 90f, 1.5f)));
+	    this.teams.add(new MineralContestTeam("Team Rouge", ChatColor.RED, new Location(Bukkit.getServer().getWorld("World"),-278, 65, -387, -90f, 0f)));
     }
 
-    public Team getTeamByName(String name) {
-	    for (Team team : this.teams) {
+    public MineralContestTeam getTeamByName(String name) {
+	    for (MineralContestTeam team : this.teams) {
 	        if (team.getName().equals(name)) {
 	            return team;
             }
@@ -65,7 +72,7 @@ public class App extends JavaPlugin {
 	    return null;
     }
 
-    public List<Team> getTeams() {
+    public List<MineralContestTeam> getTeams() {
         return teams;
     }
 
@@ -92,31 +99,35 @@ public class App extends JavaPlugin {
         return boards;
     }
 
-    public Map<UUID, PlayerTeam> getPlayerTeamMap() {
-        return playerTeamMap;
-    }
-
     public void updateScoreBoards(int timer) {
         for (FastBoard board : this.getBoards().values()) {
-            PlayerTeam playerTeam = this.getPlayerTeamMap().get(board.getPlayer().getUniqueId());
-            Collection<String> lines = new ArrayList<>();
-            
-            int minutes = ~~((timer % 3600) / 60);
-            int secondes = ~~timer % 60;
-            
-            if (secondes < 10) {
-            	lines.add("Timer : " + minutes + ":" + "0" + secondes);
-            } else {
-            	lines.add("Timer : " + minutes + ":" + secondes);
+        	MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(board.getPlayer().getUniqueId());
+            if (mineralContestPlayer instanceof MineralContestPlayer) {
+            	MineralContestTeam mineralContestTeam = MineralContestManager.getApp().getTeamByName(mineralContestPlayer.getTeamName());
+            	System.out.println(mineralContestPlayer.getTeamName());
+            	if (mineralContestTeam instanceof MineralContestTeam) {
+            		System.out.println("oh yes");
+                	Collection<String> lines = new ArrayList<>();
+                    
+                    int minutes = ~~((timer % 3600) / 60);
+                    int secondes = ~~timer % 60;
+                    
+                    if (secondes < 10) {
+                    	lines.add("Timer : " + minutes + ":" + "0" + secondes);
+                    } else {
+                    	lines.add("Timer : " + minutes + ":" + secondes);
+                    }
+                    
+                	for (Player player : mineralContestTeam.getPlayers()) {
+                		int score = this.getInventoryValue(player);
+                        lines.add(player.getDisplayName() + ": " + score + " Points");
+                        lines.add("");
+                	}
+                    
+                    lines.add("Total : " + mineralContestTeam.getScore());
+                    board.updateLines(lines);
+            	}
             }
-            
-            for (Player player : playerTeam.getTeam().getPlayers()) {
-                int score = this.getInventoryValue(player);
-                lines.add(player.getDisplayName() + ": " + score + " Points");
-                lines.add("");
-            }
-            lines.add("Total : " + playerTeam.getTeam().getScore());
-            board.updateLines(lines);
         }
     }
 
@@ -131,7 +142,7 @@ public class App extends JavaPlugin {
         this.gameState = GameState.FINISH;
         this.resetTeams();
         this.boards.clear();
-        this.playerTeamMap.clear();
+        MineralContestManager.getMineralContestPlayerManager().getPlayers().clear();
     }
 
     private int getInventoryValue(Player player) {
@@ -167,15 +178,15 @@ public class App extends JavaPlugin {
     }
 
     public void resetTeams() {
-	    for (Team team : this.teams) {
+	    for (MineralContestTeam team : this.teams) {
 	        team.getPlayers().clear();
         }
     }
 
-    public Team getWinners() {
+    public MineralContestTeam getWinners() {
 	    int max = 0;
-	    Team winners = this.teams.get(0);
-	    for (Team team : this.teams) {
+	    MineralContestTeam winners = this.teams.get(0);
+	    for (MineralContestTeam team : this.teams) {
 	        if (team.getScore() > max) {
 	            max = team.getScore();
 	            winners = team;

@@ -10,7 +10,7 @@ public class MineralContestPlayerManager {
 	private List<MineralContestPlayer> mineralContestPlayerList = new ArrayList<MineralContestPlayer>();
 
 	public List<MineralContestPlayer> getPlayers() {
-		return mineralContestPlayerList;
+		return this.mineralContestPlayerList;
 	}
 
 	public void setPlayers(List<MineralContestPlayer> players) {
@@ -26,7 +26,7 @@ public class MineralContestPlayerManager {
 	}
 	
 	public MineralContestPlayer getMineralContestPlayerByUUID(UUID ID) {
-		for (MineralContestPlayer mineralContestPlayer : mineralContestPlayerList) {
+		for (MineralContestPlayer mineralContestPlayer : this.mineralContestPlayerList) {
 			if(mineralContestPlayer.getID().equals(ID)) {
 				return mineralContestPlayer;
 			}

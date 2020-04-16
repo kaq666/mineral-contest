@@ -4,30 +4,33 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import eu.billyinc.mineralcontest.manager.MineralContestManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Team {
+public class MineralContestTeam {
 
     private String name;
-    private List<Player> players;
     private int score;
     private ChatColor color;
     private Location spawn;
 
-    public Team(String name, ChatColor chatColor, Location location) {
+    public MineralContestTeam(String name, ChatColor chatColor, Location location) {
         this.name = name;
-        this.players = new ArrayList<Player>();
         this.color = chatColor;
         this.spawn = location;
         this.score = 0;
     }
 
-    public void addPlayer(Player player) {
-        this.players.add(player);
-    }
-
     public List<Player> getPlayers() {
+    	List<Player> players = new ArrayList<Player>();
+    	for(MineralContestPlayer mineralContestPlayer : MineralContestManager.getMineralContestPlayerManager().getPlayers()) {
+    		if (this.name.equalsIgnoreCase(mineralContestPlayer.getTeamName())) {
+    			players.add(mineralContestPlayer.getPlayer());
+    		}
+    	}
+    	
         return players;
     }
 

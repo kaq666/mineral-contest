@@ -2,6 +2,7 @@ package eu.billyinc.mineralcontest.task;
 
 import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.manager.MineralContestManager;
+import eu.billyinc.mineralcontest.model.MineralContestChest;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -15,17 +16,17 @@ import java.util.Timer;
 public class GameCycle extends BukkitRunnable {
 
     private List<Integer> arenas = new ArrayList<>();
+    private List<Integer> drops = new ArrayList<>();
     private Timer javaTimer = new Timer();
     private GameTimer gameTimer = new GameTimer();
     private boolean hasStarted = false;
 
     public GameCycle() {
-        int arenaEvent = new Random().nextInt(5) + 2;
-        for (int i = 0; i <= arenaEvent; i++) {
-                arenas.add(new Random().nextInt(9) * 10000 );
+        int nbEvent = new Random().nextInt(5) + 2;
+        for (int i = 0; i <= nbEvent; i++) {
+        	arenas.add(new Random().nextInt(gameTimer.getGAMETIME()) + 1);
+        	drops.add(new Random().nextInt(gameTimer.getGAMETIME()) + 1);
         }
-        arenas.add(new Random().nextInt(9) * 1000 );
-        System.out.println(arenas);
         javaTimer.schedule(this.gameTimer, 0, 1000);
     }
 
@@ -56,13 +57,32 @@ public class GameCycle extends BukkitRunnable {
                     MineralContestManager.getApp().setGameState(GameState.WAITING);
                 }
             } else {
+            	System.out.println(gameTimer.getRemaingGameTime());
             	MineralContestManager.getApp().updateScoreBoards(gameTimer.getRemaingGameTime());
-                if (arenas.contains(gameTimer.getRemaingGameTime())) {
-                	arenas.remove(gameTimer.getRemaingGameTime());
-                    System.out.println("Arena time !!!");
-                    MineralContestManager.getApp().spawnArenaChest();
-                }
+            	this.checkArena();
+            	this.checkDrop();
             }
     	}
+    }
+    
+    private void checkArena() {
+        if (arenas.contains(gameTimer.getRemaingGameTime())) {
+        	arenas.remove(gameTimer.getRemaingGameTime());
+            MineralContestManager.getApp().spawnArenaChest();
+        }
+    }
+    
+    private void checkDrop() {
+    	if (drops.contains(gameTimer.getRemaingGameTime())) {
+        	drops.remove(gameTimer.getRemaingGameTime());
+           
+        	Location arenaLocation = MineralContestManager.getMineralContestGameManager().getArenaChestLocation();
+        	int x = new Random().nextInt(101) - 50;
+        	int z = new Random().nextInt(101) - 50;
+        	Location dropChestLocation = arenaLocation.clone().add(x, 0, z);
+        	
+        	MineralContestChest mineralContestChest = new MineralContestChest(dropChestLocation);
+        	mineralContestChest.drop();
+        }
     }
 }
