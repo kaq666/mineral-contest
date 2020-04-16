@@ -4,7 +4,7 @@ import eu.billyinc.mineralcontest.App;
 import eu.billyinc.mineralcontest.GameState;
 import eu.billyinc.mineralcontest.model.Team;
 import eu.billyinc.mineralcontest.task.ArenaCycle;
-import eu.billyinc.mineralcontest.task.GameStarter;
+import eu.billyinc.mineralcontest.task.GameCycle;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -98,7 +98,7 @@ public class MineralContestCommand implements CommandExecutor {
 				if (main.allTeamAsAPlayer()) {
 					if (main.getGameState() == GameState.WAITING) {
 						main.setGameState(GameState.STARTING);
-						GameStarter starter = new GameStarter(this.main);
+						GameCycle starter = new GameCycle(this.main);
 						starter.runTaskTimer(main, 0, 20);
 					} else {
 						sender.sendMessage(ChatColor.RED + "Impossible de lancer le jeu");

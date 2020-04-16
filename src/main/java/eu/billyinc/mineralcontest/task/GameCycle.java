@@ -24,6 +24,7 @@ public class GameCycle extends BukkitRunnable {
     private List<Integer> arenas = new ArrayList<>();
     private Timer javaTimer = new Timer();
     private GameTimer gameTimer = new GameTimer();
+    private boolean hasStarted = false;
 
     public GameCycle(App main) {
         this.main = main;
@@ -38,21 +39,38 @@ public class GameCycle extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (gameTimer.getRemaingGameTime() < 0) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendTitle("Fin de la partie", main.getWinners().getColor() + main.getWinners().getName() + " gagne la game", 10, 40,10);
-                for (FastBoard board : main.getBoards().values()) {
-                    board.delete();
+    	if (gameTimer.getRemaingCountdownTime() > 0) {
+    		for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle(ChatColor.GREEN + String.valueOf(gameTimer.getRemaingCountdownTime()), "Lancement de la partie", 20, 20, 20);
+                player.playNote(player.getLocation(), Instrument.BIT, new Note(1));
+            }
+    	} else {
+    		if (!hasStarted) {
+    			hasStarted = true;
+    			for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.sendTitle(ChatColor.GREEN + "GO !", "", 5, 10, 20);
+                    player.playNote(player.getLocation(), Instrument.BIT, new Note(24));
                 }
-                main.finishGame();
-                main.setGameState(GameState.WAITING);
+                main.setGameState(GameState.PLAYING);
+    		}
+    		
+    		if (gameTimer.getRemaingGameTime() <= 0) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.sendTitle("Fin de la partie", main.getWinners().getColor() + main.getWinners().getName() + " gagne la game", 10, 40,10);
+                    for (FastBoard board : main.getBoards().values()) {
+                        board.delete();
+                    }
+                    main.finishGame();
+                    main.setGameState(GameState.WAITING);
+                }
+            } else {
+                main.updateScoreBoards(gameTimer.getRemaingGameTime());
+                if (arenas.contains(gameTimer.getRemaingGameTime())) {
+                	arenas.remove(gameTimer.getRemaingGameTime());
+                    System.out.println("Arena time !!!");
+                    main.spawnArenaChest();
+                }
             }
-        } else {
-            main.updateScoreBoards(gameTimer.getRemaingGameTime());
-            if (arenas.contains(gameTimer.getRemaingGameTime())) {
-                System.out.println("Arena time !!!");
-                main.spawnArenaChest();
-            }
-        }
+    	}
     }
 }

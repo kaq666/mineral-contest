@@ -6,6 +6,13 @@ public class GameTimer extends TimerTask {
 	
 	private volatile int remainingCountDownTime = 10;
 	private volatile int remainingGameTime = 3600;
+	
+	public GameTimer() {
+	}
+	
+	public GameTimer(int time) {
+		this.remainingGameTime = time;
+	}
 
 	@Override
 	public void run() {
