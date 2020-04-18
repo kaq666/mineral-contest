@@ -21,6 +21,7 @@ import eu.billyinc.mineralcontest.listener.FurnaceListener;
 import eu.billyinc.mineralcontest.listener.InventoryListener;
 import eu.billyinc.mineralcontest.listener.PlayerListener;
 import eu.billyinc.mineralcontest.manager.MineralContestManager;
+import org.bukkit.scoreboard.Team;
 
 /**
  * Hello world!
@@ -77,14 +78,7 @@ public class App extends JavaPlugin {
     }
 
     public boolean allTeamAsAPlayer() {
-	    //TODO : remove always true condition
-        return true;
-//	    for (Team team : this.teams) {
-//	        if (team.getPlayers().isEmpty()) {
-//	            return false;
-//            }
-//        }
-//	    return true;
+	    return true;
     }
 
     public GameState getGameState() {
@@ -131,6 +125,10 @@ public class App extends JavaPlugin {
 
     public void spawnArenaChest() {
         if (this.getGameState() == GameState.PLAYING) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle(ChatColor.DARK_PURPLE + "Arène", "un coffre d'arène est apparu", 20, 20 * 5, 20);
+                player.sendRawMessage("/mc arene : téléportation vers l'arène");
+            }
             MineralContestChest mcChest = new MineralContestChest(MineralContestManager.getMineralContestGameManager().getArenaChestLocation(), true);
             mcChest.spawn();
         }

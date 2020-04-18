@@ -102,8 +102,8 @@ public class GameCycle extends BukkitRunnable {
     		drops.remove(drops.indexOf(time));
            
         	Location arenaLocation = MineralContestManager.getMineralContestGameManager().getArenaChestLocation();
-        	int x = new Random().nextInt(201) - 100;
-        	int z = new Random().nextInt(201) - 100;
+        	int x = new Random().nextInt(600) - 300;
+        	int z = new Random().nextInt(600) - 300;
         	Location dropChestLocation = arenaLocation.clone().add(x, 0, z);
         	
         	MineralContestChest mineralContestChest = new MineralContestChest(dropChestLocation);

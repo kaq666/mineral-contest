@@ -2,10 +2,7 @@ package eu.billyinc.mineralcontest.model;
 
 import java.util.Random;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -86,6 +83,9 @@ public class MineralContestChest {
 	}
 
 	public void drop() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.sendTitle(ChatColor.DARK_AQUA + "Parachutage", "un coffre tombe du ciel, vérifie le chat", 20, 20 * 5, 20);
+		}
 		Bukkit.broadcastMessage("Un coffre atterrira bientôt en x:" + this.location.getX() + " y:" + this.location.getY() + " z:" + this.location.getZ());
 		this.location.setY(130);
 
