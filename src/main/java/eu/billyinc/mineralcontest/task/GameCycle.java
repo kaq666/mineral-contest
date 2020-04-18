@@ -18,16 +18,38 @@ public class GameCycle extends BukkitRunnable {
     private List<Integer> arenas = new ArrayList<>();
     private List<Integer> drops = new ArrayList<>();
     private Timer javaTimer = new Timer();
-    private GameTimer gameTimer = new GameTimer();
+    private GameTimer gameTimer;
     private boolean hasStarted = false;
+    
+    public static List<Integer> arenasS = new ArrayList<>();
+    public static List<Integer> dropsS = new ArrayList<>();
 
     public GameCycle() {
-        int nbEvent = new Random().nextInt(5) + 2;
+    	gameTimer = new GameTimer();
+        int nbEvent = Math.round(gameTimer.getGAMETIME() / 750);
         for (int i = 0; i <= nbEvent; i++) {
         	arenas.add(new Random().nextInt(gameTimer.getGAMETIME()) + 1);
         	drops.add(new Random().nextInt(gameTimer.getGAMETIME()) + 1);
         }
+        
+        GameCycle.arenasS = this.arenas;
+        GameCycle.dropsS = this.drops;
+        
         javaTimer.schedule(this.gameTimer, 0, 1000);
+    }
+    
+    public GameCycle(int time) {
+    	gameTimer = new GameTimer(time);
+    	int nbEvent = Math.round(gameTimer.getGAMETIME() / 750);
+    	for (int i = 0; i <= nbEvent; i++) {
+    		arenas.add(new Random().nextInt(gameTimer.getGAMETIME()) + 1);
+    		drops.add(new Random().nextInt(gameTimer.getGAMETIME()) + 1);
+    	}
+    	
+    	GameCycle.arenasS = this.arenas;
+    	GameCycle.dropsS = this.drops;
+    	
+    	javaTimer.schedule(this.gameTimer, 0, 1000);
     }
 
     @Override
@@ -48,16 +70,17 @@ public class GameCycle extends BukkitRunnable {
     		}
     		
     		if (gameTimer.getRemaingGameTime() <= 0) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendTitle("Fin de la partie", MineralContestManager.getApp().getWinners().getColor() + MineralContestManager.getApp().getWinners().getName() + " gagne la game", 10, 40,10);
-                    for (FastBoard board : MineralContestManager.getApp().getBoards().values()) {
-                        board.delete();
+    			if (!MineralContestManager.getApp().getGameState().equals(GameState.WAITING)) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.sendTitle("Fin de la partie", MineralContestManager.getApp().getWinners().getColor() + MineralContestManager.getApp().getWinners().getName() + " gagne la game", 10, 20 * 60, 10);
+                        for (FastBoard board : MineralContestManager.getApp().getBoards().values()) {
+                            board.delete();
+                        }
+                        MineralContestManager.getApp().finishGame();
+                        MineralContestManager.getApp().setGameState(GameState.WAITING);
                     }
-                    MineralContestManager.getApp().finishGame();
-                    MineralContestManager.getApp().setGameState(GameState.WAITING);
-                }
+    			}
             } else {
-            	System.out.println(gameTimer.getRemaingGameTime());
             	MineralContestManager.getApp().updateScoreBoards(gameTimer.getRemaingGameTime());
             	this.checkArena();
             	this.checkDrop();
@@ -66,19 +89,21 @@ public class GameCycle extends BukkitRunnable {
     }
     
     private void checkArena() {
-        if (arenas.contains(gameTimer.getRemaingGameTime())) {
-        	arenas.remove(gameTimer.getRemaingGameTime());
+    	int time = gameTimer.getRemaingGameTime();
+    	if (arenas.contains(time)) {
+    		arenas.remove(arenas.indexOf(time));
             MineralContestManager.getApp().spawnArenaChest();
         }
     }
     
     private void checkDrop() {
-    	if (drops.contains(gameTimer.getRemaingGameTime())) {
-        	drops.remove(gameTimer.getRemaingGameTime());
+    	int time = gameTimer.getRemaingGameTime();
+    	if (drops.contains(time)) {
+    		drops.remove(drops.indexOf(time));
            
         	Location arenaLocation = MineralContestManager.getMineralContestGameManager().getArenaChestLocation();
-        	int x = new Random().nextInt(101) - 50;
-        	int z = new Random().nextInt(101) - 50;
+        	int x = new Random().nextInt(201) - 100;
+        	int z = new Random().nextInt(201) - 100;
         	Location dropChestLocation = arenaLocation.clone().add(x, 0, z);
         	
         	MineralContestChest mineralContestChest = new MineralContestChest(dropChestLocation);

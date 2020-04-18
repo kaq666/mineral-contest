@@ -1,9 +1,6 @@
 package eu.billyinc.mineralcontest.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,17 +15,8 @@ import eu.billyinc.mineralcontest.manager.MineralContestManager;
 
 public class MineralContestChest {
 
-	private static int MAX_EMERALD = 3;
-	private static int MAX_DIAMOND = 6;
-	private static int MAX_GOLD = 18;
-	private static int MAX_IRON = 90;
 	
 	private static double[] sounds = {0.0, 0.53, 0.56, 0.6, 0.63};
-	
-	private int emerald;
-	private int diamond;
-	private int gold;
-	private int iron;
 	private boolean hasBeenTransfered = false;
 	private Location location;
 	private boolean isArenaChest;
@@ -36,21 +24,11 @@ public class MineralContestChest {
 	public MineralContestChest(Location location) {
 		this.location = location.clone();
 		this.isArenaChest = false;
-		
-		this.emerald = ThreadLocalRandom.current().nextInt(0, MAX_EMERALD + 1);
-		this.diamond = ThreadLocalRandom.current().nextInt(0, MAX_DIAMOND + 1);
-		this.gold = ThreadLocalRandom.current().nextInt(0, MAX_GOLD + 1);
-		this.iron = ThreadLocalRandom.current().nextInt(0, MAX_IRON + 1);
 	}
 	
 	public MineralContestChest(Location location, boolean isArenaChest) {
 		this.location = location.clone();
 		this.isArenaChest = isArenaChest;
-		
-		this.emerald = ThreadLocalRandom.current().nextInt(0, MAX_EMERALD + 1);
-		this.diamond = ThreadLocalRandom.current().nextInt(0, MAX_DIAMOND + 1);
-		this.gold = ThreadLocalRandom.current().nextInt(0, MAX_GOLD + 1);
-		this.iron = ThreadLocalRandom.current().nextInt(0, MAX_IRON + 1);
 	}
 	
 	private void removeParachute() {
@@ -129,38 +107,6 @@ public class MineralContestChest {
 		}, (i +1 ) * 20);
 	}
 	
-	public int getEmerald() {
-		return emerald;
-	}
-
-	public void setEmerald(int emerald) {
-		this.emerald = emerald;
-	}
-
-	public int getDiamond() {
-		return diamond;
-	}
-
-	public void setDiamond(int diamond) {
-		this.diamond = diamond;
-	}
-
-	public int getGold() {
-		return gold;
-	}
-
-	public void setGold(int gold) {
-		this.gold = gold;
-	}
-
-	public int getIron() {
-		return iron;
-	}
-
-	public void setIron(int iron) {
-		this.iron = iron;
-	}
-	
 	public double[] getSounds() {
 		return MineralContestChest.sounds;
 	}
@@ -185,15 +131,32 @@ public class MineralContestChest {
 		return this.isArenaChest;
 	}
 
-	public void spawn() {		
+	public void spawn() {
 		Block block = this.location.getBlock();
 		block.setType(Material.CHEST);
-		
 		Chest chest = (Chest) block.getState();
-		chest.getInventory().setItem(this.getItemsPositions()[0], new ItemStack(Material.EMERALD, this.getEmerald()));
-		chest.getInventory().setItem(this.getItemsPositions()[1], new ItemStack(Material.DIAMOND, this.getDiamond()));
-		chest.getInventory().setItem(this.getItemsPositions()[2], new ItemStack(Material.GOLD_INGOT, this.getGold()));
-		chest.getInventory().setItem(this.getItemsPositions()[3], new ItemStack(Material.IRON_INGOT, this.getIron()));
+		
+		int maxItem, minItem;
+        maxItem = 30;
+        minItem = 10;
+        Random r = new Random();
+        int nbItem = r.nextInt((maxItem - minItem) + 1) + minItem;
+        Material material = null;
+        for(int i = 0; i < nbItem; i++) {
+        	int rn = r.nextInt(100);
+        	
+        	if (rn >= 0 && rn <= 75) {
+        		material = Material.IRON_INGOT;
+        	} else if (rn > 75 && rn <= 90) {
+        		material = Material.GOLD_INGOT;
+        	} else if (rn > 90 && rn <= 97) {
+        		material = Material.DIAMOND;
+        	} else {
+        		material = Material.EMERALD;
+        	}
+        	
+        	chest.getInventory().addItem(new ItemStack(material));
+        }
 		
 		MineralContestManager.getMineralContestChestManager().addMineralContestChest(chest, this);
 	}
@@ -215,20 +178,5 @@ public class MineralContestChest {
 		}
 		
 		MineralContestManager.getMineralContestChestManager().removeMineralContestChest(chest);
-	}
-	
-	private int[] getItemsPositions() {
-		List<Integer> list = new ArrayList<Integer>();
-		
-		for (int i = 0; i < 27; i++) {
-			list.add(i);
-		}
-		
-		for (int i = 0; i < 10; i++) {
-			Collections.shuffle(list);
-		}
-		
-		int[] result = {list.get(0), list.get(1), list.get(2), list.get(3)};		
-		return result;
 	}
 }

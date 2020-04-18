@@ -40,7 +40,7 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onOpeningMineralContestChest(PlayerInteractEvent e) {
-		if (e.getClickedBlock() != null) {
+		if (e.getClickedBlock() != null && MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			if (e.getClickedBlock() instanceof Block && e.getClickedBlock().getState() instanceof Chest && e.getPlayer() instanceof Player) {
 				Chest chest = (Chest) e.getClickedBlock().getState();
 				MineralContestChest mcChest = MineralContestManager.getMineralContestChestManager().getMineralContestChestByChest(chest);

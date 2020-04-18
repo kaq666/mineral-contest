@@ -104,9 +104,7 @@ public class App extends JavaPlugin {
         	MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(board.getPlayer().getUniqueId());
             if (mineralContestPlayer instanceof MineralContestPlayer) {
             	MineralContestTeam mineralContestTeam = MineralContestManager.getApp().getTeamByName(mineralContestPlayer.getTeamName());
-            	System.out.println(mineralContestPlayer.getTeamName());
             	if (mineralContestTeam instanceof MineralContestTeam) {
-            		System.out.println("oh yes");
                 	Collection<String> lines = new ArrayList<>();
                     
                     int minutes = ~~((timer % 3600) / 60);
