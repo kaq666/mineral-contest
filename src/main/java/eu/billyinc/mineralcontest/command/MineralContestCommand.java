@@ -93,6 +93,7 @@ public class MineralContestCommand implements CommandExecutor {
 				if (MineralContestManager.getApp().allTeamAsAPlayer()) {
 					if (MineralContestManager.getApp().getGameState() == GameState.WAITING) {
 						MineralContestManager.getApp().setGameState(GameState.STARTING);
+						MineralContestManager.getApp().resetPlayerInventories();
 						GameCycle starter = null;
 						
 						if (args.length > 1) {

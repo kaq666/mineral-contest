@@ -7,6 +7,7 @@ import eu.billyinc.mineralcontest.utils.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -190,4 +191,25 @@ public class App extends JavaPlugin {
         }
         return winners;
     }
+
+    public void resetPlayerInventories() {
+	    for (Player player : Bukkit.getOnlinePlayers()) {
+	        player.getInventory().clear();
+            player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+            player.getInventory().setItem(1, new ItemStack(Material.BOW));
+            player.getInventory().setItem(2, new ItemStack(Material.ARROW, 64));
+            // equip iron armor
+            player.getEquipment().setBoots(new ItemStack(Material.IRON_BOOTS));
+            player.getEquipment().setHelmet(new ItemStack(Material.IRON_HELMET));
+            player.getEquipment().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+            player.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+        }
+    }
+
+    public void setPlayerHealth() {
+	    for (Player player : Bukkit.getOnlinePlayers()) {
+	        player.setHealth(100);
+        }
+    }
+
 }

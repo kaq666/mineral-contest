@@ -1,8 +1,7 @@
 package eu.billyinc.mineralcontest.listener;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.lang.reflect.Member;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,10 +15,12 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -37,6 +38,8 @@ import eu.billyinc.mineralcontest.model.MineralContestTeam;
 import eu.billyinc.mineralcontest.utils.FastBoard;
 
 public class PlayerListener implements Listener {
+
+	private Map<UUID, ItemStack[]> deathItems = new HashMap<>();
 
 	@EventHandler
 	public void onOpeningMineralContestChest(PlayerInteractEvent e) {
@@ -122,9 +125,10 @@ public class PlayerListener implements Listener {
 		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			Player player = e.getEntity();
 			List<ItemStack> drops = e.getDrops();
+			this.deathItems.put(player.getUniqueId(), player.getInventory().getContents());
 			drops.clear();
-			for (ItemStack item : player.getInventory()) {
-				if (item instanceof ItemStack) {
+			for (ItemStack item : player.getInventory().getContents()) {
+				if (item != null) {
 					if (
 							item.getType().equals(Material.EMERALD) ||
 							item.getType().equals(Material.GOLD_INGOT) ||
@@ -146,21 +150,23 @@ public class PlayerListener implements Listener {
 		Player player = e.getPlayer();
 		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
+
 			if (mineralContestPlayer instanceof MineralContestPlayer) {
 				MineralContestTeam mineralContestTeam = MineralContestManager.getApp().getTeamByName(mineralContestPlayer.getTeamName());
 				if (mineralContestTeam instanceof MineralContestTeam) {
 					e.setRespawnLocation(mineralContestTeam.getSpawn());
 				}
 			}
-			
-			player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
-			player.getInventory().setItem(1, new ItemStack(Material.BOW));
-			player.getInventory().setItem(2, new ItemStack(Material.ARROW, 64));
-			// equip iron armor
-			player.getEquipment().setBoots(new ItemStack(Material.IRON_BOOTS));
-			player.getEquipment().setHelmet(new ItemStack(Material.IRON_HELMET));
-			player.getEquipment().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
-			player.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+
+			this.giveBackPreviousInventory(player);
+			this.deathItems.remove(player.getUniqueId());
+		}
+	}
+
+	@EventHandler
+	public void onFoodChange(FoodLevelChangeEvent e) {
+		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
+			e.setCancelled(true);
 		}
 	}
 	
@@ -218,4 +224,46 @@ public class PlayerListener implements Listener {
         board.updateLines(lines);
         MineralContestManager.getApp().getBoards().put(player.getUniqueId(), board);
     }
+
+    private void giveBackPreviousInventory(Player player) {
+		player.getInventory().setItem(8, new ItemStack(Material.ARROW, 64));
+		for (ItemStack itemStack : deathItems.get(player.getUniqueId())) {
+			if (itemStack != null) {
+
+				if (
+						itemStack.getType().equals(Material.IRON_SWORD) ||
+						itemStack.getType().equals(Material.BOW) ||
+						itemStack.getType().equals(Material.WOODEN_PICKAXE) ||
+						itemStack.getType().equals(Material.STONE_PICKAXE) ||
+						itemStack.getType().equals(Material.IRON_PICKAXE)
+				) {
+					player.getInventory().addItem(itemStack);
+				}
+
+				// set the armor back on the player
+				if (
+						itemStack.getType().equals(Material.IRON_HELMET)
+				) {
+					player.getInventory().setHelmet(itemStack);
+				}
+				if (
+						itemStack.getType().equals(Material.IRON_CHESTPLATE)
+				) {
+					player.getInventory().setChestplate(itemStack);
+				}
+				if (
+						itemStack.getType().equals(Material.IRON_LEGGINGS)
+				) {
+					player.getInventory().setLeggings(itemStack);
+				}
+				if (
+						itemStack.getType().equals(Material.IRON_BOOTS)
+				) {
+					player.getInventory().setBoots(itemStack);
+				}
+
+			}
+		}
+	}
+
 }
