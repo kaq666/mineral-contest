@@ -1,8 +1,6 @@
 package eu.billyinc.mineralcontest.listener;
 
-import java.lang.reflect.Member;
 import java.util.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Instrument;
@@ -15,18 +13,16 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -150,6 +146,7 @@ public class PlayerListener implements Listener {
 		Player player = e.getPlayer();
 		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
+			mineralContestPlayer.kill();
 
 			if (mineralContestPlayer instanceof MineralContestPlayer) {
 				MineralContestTeam mineralContestTeam = MineralContestManager.getApp().getTeamByName(mineralContestPlayer.getTeamName());
@@ -167,6 +164,25 @@ public class PlayerListener implements Listener {
 	public void onFoodChange(FoodLevelChangeEvent e) {
 		if (MineralContestManager.getApp().getGameState() == GameState.PLAYING) {
 			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onPlayerDamage(EntityDamageEvent e) {
+		if (e.getEntityType().equals(EntityType.PLAYER)) {
+			if (this.isInArena(e.getEntity().getLocation())) {
+				e.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onMoveEvent(PlayerMoveEvent e) {
+		MineralContestPlayer contestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(e.getPlayer().getUniqueId());
+		if (contestPlayer != null) {
+			if (contestPlayer.isDead()) {
+				e.setCancelled(true);
+			}
 		}
 	}
 	
@@ -266,4 +282,16 @@ public class PlayerListener implements Listener {
 		}
 	}
 
+	private boolean isInArena(Location location) {
+		Location arenaLocation = MineralContestManager.getMineralContestGameManager().getArenaLocation();
+		double maxX = arenaLocation.getX() + 5;
+		double minX = arenaLocation.getX() - 5;
+		double maxY = arenaLocation.getY() + 3;
+		double minY = arenaLocation.getY() - 3;
+		double maxZ = arenaLocation.getZ() + 5;
+		double minZ = arenaLocation.getZ() - 5;
+		return location.getX() <= maxX && location.getX() >= minX &&
+				location.getY() <= maxY && location.getY() >= minY &&
+				location.getZ() <= maxZ && location.getZ() >= minZ;
+	}
 }

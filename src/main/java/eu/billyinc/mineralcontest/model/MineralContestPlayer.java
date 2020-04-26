@@ -2,8 +2,10 @@ package eu.billyinc.mineralcontest.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import java.util.UUID;
 
+import eu.billyinc.mineralcontest.task.DeathTimer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -12,6 +14,8 @@ public class MineralContestPlayer {
 	private Player player;
 	private String teamName;
 	private List<Integer> tasks = new ArrayList<Integer>();
+	private Timer javaTimer = new Timer();
+	private DeathTimer deathTimer = null;
 	
 	public MineralContestPlayer(UUID ID, Player player) {
 		this.ID = ID;
@@ -63,5 +67,17 @@ public class MineralContestPlayer {
 		for (Integer task : this.tasks) {
 			Bukkit.getScheduler().cancelTask(task);
 		}
+	}
+
+	public boolean isDead() {
+		if (this.deathTimer == null) {
+			return false;
+		}
+		return this.deathTimer.getRemainingDeathTime() > 0;
+	}
+
+	public void kill() {
+		this.deathTimer = new DeathTimer(this.player);
+		javaTimer.schedule(this.deathTimer, 0, 1000);
 	}
 }
