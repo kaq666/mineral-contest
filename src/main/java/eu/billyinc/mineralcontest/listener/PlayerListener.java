@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -89,8 +90,11 @@ public class PlayerListener implements Listener {
 
         // player try to reach a safe base
         if(e.getAction().equals(Action.PHYSICAL)) {
-            if (e.getClickedBlock().getType() == Material.STONE_PRESSURE_PLATE) {
-                this.authorize(e.getPlayer());
+            if (e.getClickedBlock().getType() == Material.STONE_PRESSURE_PLATE && !this.authorize(e.getPlayer())) {
+                e.setCancelled(true);
+                MineralContestPlayer contestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(e.getPlayer().getUniqueId());
+                MineralContestTeam contestTeam = MineralContestManager.getApp().getTeamByName(contestPlayer.getTeamName());
+                e.getPlayer().teleport(contestTeam.getSpawn());
             }
 
         }
@@ -168,15 +172,6 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerDamage(EntityDamageEvent e) {
-		if (e.getEntityType().equals(EntityType.PLAYER)) {
-			if (this.isInArena(e.getEntity().getLocation())) {
-				e.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler
 	public void onMoveEvent(PlayerMoveEvent e) {
 		MineralContestPlayer contestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(e.getPlayer().getUniqueId());
 		if (contestPlayer != null) {
@@ -185,7 +180,7 @@ public class PlayerListener implements Listener {
 			}
 		}
 	}
-	
+
 	private void setClickedTeam(BlockState blockState, Player player) {
 		MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
 		if (mineralContestPlayer instanceof MineralContestPlayer) {
@@ -203,7 +198,7 @@ public class PlayerListener implements Listener {
 		}
     }
 
-    private void authorize(Player player) {
+    private boolean authorize(Player player) {
     	MineralContestPlayer mineralContestPlayer = MineralContestManager.getMineralContestPlayerManager().getMineralContestPlayerByUUID(player.getUniqueId());
     	if (mineralContestPlayer instanceof MineralContestPlayer) {
     		MineralContestTeam mineralContestTeam = MineralContestManager.getApp().getTeamByName(mineralContestPlayer.getTeamName());
@@ -215,12 +210,12 @@ public class PlayerListener implements Listener {
     	                    || (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.YELLOW_TERRACOTTA && mineralContestTeam != MineralContestManager.getApp().getTeamByName("Team Jaune"))
     	            ) {
     	                    player.sendMessage("zone non autorisée");
-    	                    // TODO : voir pour le téleporte
-    	                    player.setHealth(0);
+    	                    return false;
     	            }
     	        }
     		}
     	}
+    	return true;
     }
     
     private void displayScoreBoard(final Player player, MineralContestPlayer mineralContestPlayer, MineralContestTeam mineralContestTeam) {
@@ -282,16 +277,4 @@ public class PlayerListener implements Listener {
 		}
 	}
 
-	private boolean isInArena(Location location) {
-		Location arenaLocation = MineralContestManager.getMineralContestGameManager().getArenaLocation();
-		double maxX = arenaLocation.getX() + 5;
-		double minX = arenaLocation.getX() - 5;
-		double maxY = arenaLocation.getY() + 3;
-		double minY = arenaLocation.getY() - 3;
-		double maxZ = arenaLocation.getZ() + 5;
-		double minZ = arenaLocation.getZ() - 5;
-		return location.getX() <= maxX && location.getX() >= minX &&
-				location.getY() <= maxY && location.getY() >= minY &&
-				location.getZ() <= maxZ && location.getZ() >= minZ;
-	}
 }
