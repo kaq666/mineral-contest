@@ -1,10 +1,10 @@
 # Mineral Contest
 Mineral Contest est un mode de jeux Minecraft, proposé par Squeezie lors de ces live du jeudi soir. Le but du jeu est de miner des ressources afin de faire gagner des points à son équipe. L'équipe qui termine la partie avec le plus de points l'emporte.
 Cette version est une adaptation du jeu fait par des membres du serveur discord [Marrons](https://discord.gg/jyGaS2W).
-Plus d'informations disponibles sur notre site web.
+Plus d'informations disponibles sur notre [site web](https://mineral-contest.netlify.app/).
 
 ## Installer le plugin
-Vous pouvez télécharger Mineral Contest en cliquant sur [ici](https://github.com/kaq666/mineral-contest/releases/download/v1.0.0/mineral-contest.jar) et le placer dans le dossier `plugins` de votre serveur.
+Vous pouvez télécharger Mineral Contest en cliquant [ici](https://github.com/kaq666/mineral-contest/releases/download/v1.0.0/mineral-contest.jar) et le placer dans le dossier `plugins` de votre serveur.
 
 ## Commandes
 
