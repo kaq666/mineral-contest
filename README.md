@@ -12,7 +12,7 @@ Vous pouvez télécharger Mineral Contest en cliquant [ici](https://github.com/k
 Les commandes suivantes sont uniquement réalisables par des joueurs qui sont administrateurs du serveur
 
  - `/mc setarenalocation` permet de définir l'emplacement où seront téléporter les joueurs avec la commande `/mc arene` lors des événements d'arènes
- - `/mc setarenachestlocation permet de définir l'emplacement du coffre de lors des événements d'arènes 
+ - `/mc setarenachestlocation` permet de définir l'emplacement du coffre de lors des événements d'arènes 
  - `/mc chest` permet de faire droper un coffre sur votre position
  - `/mc arenachest` permet de lancer un événement d'arène 
  - `/mc start` permet de démarrer la partie (requiert un joueur par équipe minimum)
