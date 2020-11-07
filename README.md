@@ -1,6 +1,6 @@
 # Mineral Contest
 Mineral Contest est un mode de jeux Minecraft, proposé par Squeezie lors de ces live du jeudi soir. Le but du jeu est de miner des ressources afin de faire gagner des points à son équipe. L'équipe qui termine la partie avec le plus de points l'emporte.
-Cette version est une adaptation du jeu fait par des membres du serveur discord [Marrons](https://discord.gg/jyGaS2W).
+Cette version est une adaptation du jeu fait par des membres du serveur discord [Marrons](https://discord.gg/A9jfTAN).
 Plus d'informations disponibles sur notre [site web](https://mineral-contest.netlify.app/).
 
 ## Installer le plugin
@@ -16,7 +16,7 @@ Les commandes suivantes sont uniquement réalisables par des joueurs qui sont ad
  - `/mc chest` permet de faire droper un coffre sur votre position
  - `/mc arenachest` permet de lancer un événement d'arène 
  - `/mc start` permet de démarrer la partie (requiert un joueur par équipe minimum)
- - `/setTeamSpawnLocation <couleur>` permet de définir l'emplacement du spawn de l'équipe de la couleur choisie
+ - `/mc setTeamSpawnLocation <couleur>` permet de définir l'emplacement du spawn de l'équipe de la couleur choisie
  - `/events` permet de savoir à quelle période seront lancés les événements
 
 ### Commandes à destination de tous les joueurs
